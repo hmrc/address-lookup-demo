@@ -1,0 +1,28 @@
+@()(implicit request: Request[_])
+
+
+@main_template(title = "Hello from address-lookup-demo", bodyClasses = None) {
+
+<h1>Your Address</h1>
+<h2>Choose your location</h2>
+<form>
+    <fieldset class="inline">
+
+        <legend class="visuallyhidden">Choose your location</legend>
+
+        <label class="block-label" for="radio-inline-1">
+            <input id="radio-inline-1" type="radio" name="radio-inline-group" value="UK">
+            United Kingdom
+        </label>
+        <label class="block-label" for="radio-inline-2">
+            <input id="radio-inline-2" type="radio" name="radio-inline-group" value="Int">
+            International
+        </label>
+        <label class="block-label" for="radio-inline-3">
+            <input id="radio-inline-3" type="radio" name="radio-inline-group" value="BFPO">
+            BFPO
+        </label>
+
+    </fieldset>
+</form>
+}
