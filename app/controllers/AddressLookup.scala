@@ -16,9 +16,12 @@
 
 package controllers
 
+import play.api.Play.current
 import play.api.data.validation.Constraints._
 import play.api.data._
 import play.api.data.Forms._
+import play.api.libs.json.Json
+import play.api.libs.ws.WS
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 import play.api.mvc._
 import views.html.addresslookup._
@@ -71,11 +74,16 @@ trait AddressLookup extends FrontendController {
       )(AddressData.apply)(AddressData.unapply)
   }
 
+
+  val url= "" //address look up service
   val addressLookupSelection = Action.async { implicit request =>
     addressForm.bindFromRequest().fold(
     formWithErrors => Future.successful(BadRequest),
     address => {
       println("-------------->" + address)
+      WS.url(url + address.postcode).withHeaders(""/*address lookup header*/ -> "addressLookupDemo").get().map { r =>
+        println("---------------->" + r.body)
+      }
       val postcode = request
       Future.successful(Ok(address_lookup(countries)))
     }
