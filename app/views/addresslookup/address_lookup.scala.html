@@ -17,7 +17,7 @@
 <h1>Your Address</h1>
 
 <label for="location">Choose your location</label>
-<form>
+<form action="address-lookup-selection" method="get">
     <fieldset class="inline">
 
         <legend class="visuallyhidden">Choose your location</legend>
@@ -44,15 +44,15 @@
             <div class="form-group">
                 <label class="form-label" for="house-name-number">House name or number</label>
                     <input class="form-control" id="house-name-number" name="house-name-number" type="text">
-                <label class="form-checkbox" for="checkbox-no-fixed-address">
-                    <input id="checkbox-no-fixed-address" name="no-fixed-address" type="checkbox" value="true-no-fixed-address">
+                <label class="form-checkbox" for="no-fixed-address">
+                    <input id="no-fixed-address" name="no-fixed-address" type="checkbox" value="true">
                     I have no fixed address
                 </label>
             </div>
 
             <div class="form-group">
                 <label class="form-label" for="UK-postcode">Post code</label>
-                    <input class="form-control" id="UK-postcode" type="text" maxlength="8">
+                    <input class="form-control" id="UK-postcode" name="UK-postcode" type="text" maxlength="8">
             </div>
 
             <div class="form-group">
@@ -80,7 +80,7 @@
             </div>
 
             <div class="form-group">
-                <input class="button" type="submit" value="Find address" disabled>
+                <input class="button" type="submit" value="Find address" >
             </div>
 
         </div>
