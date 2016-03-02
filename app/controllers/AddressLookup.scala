@@ -16,6 +16,9 @@
 
 package controllers
 
+import play.api.data.validation.Constraints._
+import play.api.data._
+import play.api.data.Forms._
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 import play.api.mvc._
 import views.html.addresslookup._
@@ -24,6 +27,7 @@ import scala.concurrent.Future
 object AddressLookup extends AddressLookup
 
 trait AddressLookup extends FrontendController {
+
   val countries = List[String](
       "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda",
       "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh",
@@ -51,7 +55,30 @@ trait AddressLookup extends FrontendController {
       "Turkmenistan", "Uganda", "Ukraine", "United Arab Emirates", "United States",
       "Uruguay", "Uzbekistan", "Vanuatu", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"
 )
+
+
+
   val addressLookup = Action.async { implicit request =>
     Future.successful(Ok(address_lookup(countries)))
+  }
+
+  case class AddressData(nameNo:Option[String], postcode:String, noFixed:Option[String])
+
+  val addressForm = Form[AddressData] {
+    mapping("house-name-number" -> optional(text),
+            "UK-postcode" -> text,
+            "no-fixed-address" -> optional(text)
+      )(AddressData.apply)(AddressData.unapply)
+  }
+
+  val addressLookupSelection = Action.async { implicit request =>
+    addressForm.bindFromRequest().fold(
+    formWithErrors => Future.successful(BadRequest),
+    address => {
+      println("-------------->" + address)
+      val postcode = request
+      Future.successful(Ok(address_lookup(countries)))
+    }
+    )
   }
 }
