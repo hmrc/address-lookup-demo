@@ -1,4 +1,4 @@
-@(countries:List[String])(implicit request: Request[_])
+@(countries:List[String], addressList:Option[List[controllers.Address]], errorMessage:Option[String])(implicit request: Request[_])
 
 <script src="assets/javascripts/vendor/jquery-1.11.0.min.js"></script>
 <script src="assets/javascripts/selection-buttons.js"></script>
@@ -16,12 +16,12 @@
 
 <h1>Your Address</h1>
 
-<label for="location">Choose your location</label>
 <form action="address-lookup-selection" method="get">
     <fieldset class="inline">
 
         <legend class="visuallyhidden">Choose your location</legend>
 
+        <label class="form-label" for="location">Choose your location</label>
         <div class="form-group" id="location">
             <label class="block-label" data-target="example-UK" for="location-UK">
                 <input id="location-UK" type="radio" name="radio-inline-group" value="UK">
@@ -50,25 +50,45 @@
                 </label>
             </div>
 
-            <div class="form-group">
-                <label class="form-label" for="UK-postcode">Post code</label>
+
+            @if(errorMessage.isEmpty){
+                <div class="form-group">
+                    <label class="form-label" for="UK-postcode">Post code</label>
                     <input class="form-control" id="UK-postcode" name="UK-postcode" type="text" maxlength="8">
+                </div>
+            } else {
+            <div class="form-group error">
+
+                <label for="error-UK-postcode">
+                    <span class="form-label-bold">Post code</span>
+                    <span class="form-hint">A post code is required</span>
+                    <span class="error-message" id="error-message-postcode">Post code was left blank</span>
+                </label>
+                <input class="form-control" id="error-UK-postcode" type="text" name="UK-postcode" value="" aria-describedby="error-message-postcode">
+
             </div>
+            }
+
+
 
             <div class="form-group">
+                @for( addrX <- addressList ) {
                 <label class="form-label" for="Address-table">Found addresses</label>
                 <table id="Address-table">
                     <tbody>
-                    <tr>
-                        <td class="selection"><input id="address-selection-1" type="radio" name="radio-inline-group" value="Address-selection"></td>
-                        <td>32, High Street, Newcastle. NE6 5XP</td>
-                    </tr>
+                    @for(  addr <- addrX ) {
+                        <tr>
+                            <td class="selection"><input id="address-selection-1" type="radio" name="radio-inline-group" value="Address-selection"></td>
+                            <td>@{addr.toAddrString}</td>
+                        </tr>
+                        }
                     </tbody>
                 </table>
+                }
             </div>
 
             <div class="form-group">
-                <input class="button" type="submit" value="Find address" >
+                <input class="button" type="submit" value="Find address">
                 or <a href="#">edit this address</a>
             </div>
 

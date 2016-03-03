@@ -26,6 +26,9 @@ import uk.gov.hmrc.play.frontend.controller.FrontendController
 import play.api.mvc._
 import views.html.addresslookup._
 import scala.concurrent.Future
+import play.api.libs.json.Json
+import play.api.libs.json._
+import play.api.libs.functional.syntax._
 
 object AddressLookup extends AddressLookup
 
@@ -59,13 +62,13 @@ trait AddressLookup extends FrontendController {
       "Uruguay", "Uzbekistan", "Vanuatu", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"
 )
 
-
+  val errorMessage = None // Some("this is an error")
 
   val addressLookup = Action.async { implicit request =>
-    Future.successful(Ok(address_lookup(countries)))
+    Future.successful(Ok(address_lookup(countries, None, errorMessage)))
   }
 
-  case class AddressData(nameNo:Option[String], postcode:String, noFixed:Option[String])
+  case class AddressData(nameNo: Option[String], postcode: String, noFixed: Option[String])
 
   val addressForm = Form[AddressData] {
     mapping("house-name-number" -> optional(text),
@@ -75,18 +78,45 @@ trait AddressLookup extends FrontendController {
   }
 
 
-  val url= "" //address look up service
+  implicit val addrReader: Reads[Address] = (
+(JsPath \ "id").read[String] and
+(JsPath \\ "lines").read[Array[String]] and
+(JsPath \\ "town").read[String] and
+(JsPath \\ "postcode").read[String]
+)( Address.apply _ )
+
+
+  val url = "https://www-staging.tax.service.gov.uk/address-lookup/v1/uk/addresses.json"
   val addressLookupSelection = Action.async { implicit request =>
     addressForm.bindFromRequest().fold(
-    formWithErrors => Future.successful(BadRequest),
-    address => {
-      println("-------------->" + address)
-      WS.url(url + address.postcode).withHeaders(""/*address lookup header*/ -> "addressLookupDemo").get().map { r =>
-        println("---------------->" + r.body)
+      formWithErrors => Future.successful(BadRequest),
+      address => {
+        if (address.postcode == "") {
+          Future.successful(Ok(address_lookup(countries, None, Some("NO Postcode"))))
+
+        } else {
+          println("-------------->" + address)
+          println("IM SENDING THIS POSTCODE__________" + address.postcode)
+          WS.url(url).withHeaders("X-Hmrc-Origin" -> "addressLookupDemo").withQueryString("postcode" -> address.postcode, "filter" -> address.nameNo.getOrElse("")).get().map { r =>
+            println("---------------->" + r.body)
+            val addrs = Json.parse(r.body).asInstanceOf[play.api.libs.json.JsArray]
+
+            val addressList: Option[List[Address]] = Some(addrs.value.map { i => i.as[Address] }.toList)
+            Ok(address_lookup(countries, addressList, errorMessage))
+
+          }
+        }
       }
-      val postcode = request
-      Future.successful(Ok(address_lookup(countries)))
-    }
     )
   }
 }
+
+
+case class Address(uprn: String, lines: Array[String], town: String, postcode: String) {
+  def toAddrString:String = {
+    val lineStr = lines.mkString(" ")
+    s"$lineStr $town $postcode"
+  }
+}
+
+
