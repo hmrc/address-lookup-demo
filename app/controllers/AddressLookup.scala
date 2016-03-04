@@ -79,11 +79,11 @@ trait AddressLookup extends FrontendController {
 
 
   implicit val addrReader: Reads[Address] = (
-(JsPath \ "id").read[String] and
-(JsPath \\ "lines").read[Array[String]] and
-(JsPath \\ "town").read[String] and
-(JsPath \\ "postcode").read[String]
-)( Address.apply _ )
+    (JsPath \ "id").read[String] and
+    (JsPath \\ "lines").read[Array[String]] and
+    (JsPath \\ "town").read[String] and
+    (JsPath \\ "postcode").read[String]
+    )( Address.apply _ )
 
 
   val url = "https://www-staging.tax.service.gov.uk/address-lookup/v1/uk/addresses.json"

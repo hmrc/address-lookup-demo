@@ -14,14 +14,14 @@
 
 @main_template(title = "Address lookup demo", bodyClasses = None) {
 
-<h1>Your Address</h1>
+<h1 class="heading-xlarge">Your Address</h1>
 
 <form action="address-lookup-selection" method="get">
     <fieldset class="inline">
 
         <legend class="visuallyhidden">Choose your location</legend>
 
-        <label class="form-label" for="location">Choose your location</label>
+        <label class="form-label-bold" for="location">Choose your location</label>
         <div class="form-group" id="location">
             <label class="block-label" data-target="example-UK" for="location-UK">
                 <input id="location-UK" type="radio" name="radio-inline-group" value="UK">
@@ -41,8 +41,21 @@
 
         <div class="panel panel-border-narrow" id="example-UK">
 
+
+            @for( addrX <- addressList ) {
+                @if(addrX.length > 50) {
+                    <div class="form-group">
+                        <div style="background: #FFBF47; padding: 15px">
+                            <h2>Over 50 addresses found</h2>
+                            <p>Please enter a house name or number.</p>
+                        </div>
+                    </div>
+                }
+            }
+
+
             <div class="form-group">
-                <label class="form-label" for="house-name-number">House name or number</label>
+                <label class="form-label-bold" for="house-name-number">House name or number</label>
                     <input class="form-control" id="house-name-number" name="house-name-number" type="text">
                 <label class="form-checkbox" for="no-fixed-address">
                     <input id="no-fixed-address" name="no-fixed-address" type="checkbox" value="true">
@@ -53,7 +66,7 @@
 
             @if(errorMessage.isEmpty){
                 <div class="form-group">
-                    <label class="form-label" for="UK-postcode">Post code</label>
+                    <label class="form-label-bold" for="UK-postcode">Post code</label>
                     <input class="form-control" id="UK-postcode" name="UK-postcode" type="text" maxlength="8">
                 </div>
             } else {
@@ -70,22 +83,23 @@
             }
 
 
-
-            <div class="form-group">
-                @for( addrX <- addressList ) {
-                <label class="form-label" for="Address-table">Found addresses</label>
-                <table id="Address-table">
-                    <tbody>
-                    @for(  addr <- addrX ) {
-                        <tr>
-                            <td class="selection"><input id="address-selection-1" type="radio" name="radio-inline-group" value="Address-selection"></td>
-                            <td>@{addr.toAddrString}</td>
-                        </tr>
-                        }
-                    </tbody>
-                </table>
+            @for( addrX <- addressList ) {
+            @if(addrX.length <= 50) {
+                <div class="form-group">
+                    <label class="form-label-bold" for="Address-table">Found addresses</label>
+                    <table id="Address-table">
+                        <tbody>
+                        @for(  addr <- addrX ) {
+                            <tr>
+                                <td class="selection"><input id='@{addr.uprn}' type="radio" name="radio-inline-group" value="Address-selection"></td>
+                                <td><label for='@{addr.uprn}'>@{addr.toAddrString}</label></td>
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
                 }
-            </div>
+            }
 
             <div class="form-group">
                 <input class="button" type="submit" value="Find address">
@@ -98,7 +112,7 @@
         <div class="panel panel-border-narrow" id="example-INT" style="display: none;">
 
             <div class="form-group">
-                <label class="form-label" for="int-country">Country</label>
+                <label class="form-label-bold" for="int-country">Country</label>
                 <select class="form-control" id="int-country">
                     @for(country <- countries) {
                         <option>@country</option>
@@ -107,7 +121,7 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="int-address">Address</label>
+                <label class="form-label-bold" for="int-address">Address</label>
                 <textarea class="form-control" rows="5" id="int-address"></textarea>
             </div>
 
@@ -120,37 +134,37 @@
         <div class="panel panel-border-narrow" id="example-BFPO" style="display: none;">
 
             <div class="form-group">
-            <label class="form-label" for="BFPO-postcode">BFPO post code</label>
+            <label class="form-label-bold" for="BFPO-postcode">BFPO post code</label>
             <input class="form-control" id="BFPO-postcode" type="text">
             </div>
 
             <div class="form-group">
-            <label class="form-label" for="BFPO-number">BFPO number</label>
+            <label class="form-label-bold" for="BFPO-number">BFPO number</label>
             <input class="form-control" id="BFPO-number" type="text">
             </div>
 
             <div class="form-group">
-            <label class="form-label" for="BFPO-service-number">Service number</label>
+            <label class="form-label-bold" for="BFPO-service-number">Service number</label>
             <input class="form-control" id="BFPO-service-number" type="text">
             </div>
 
             <div class="form-group">
-            <label class="form-label" for="BFPO-rank">Rank</label>
+            <label class="form-label-bold" for="BFPO-rank">Rank</label>
             <input class="form-control" id="BFPO-rank" type="text">
             </div>
 
             <div class="form-group">
-            <label class="form-label" for="BFPO-name">Name</label>
+            <label class="form-label-bold" for="BFPO-name">Name</label>
             <input class="form-control" id="BFPO-name" type="text">
             </div>
 
             <div class="form-group">
-            <label class="form-label" for="BFPO-unit-regiment-department">Unit,Regiment and/or Department</label>
+            <label class="form-label-bold" for="BFPO-unit-regiment-department">Unit,Regiment and/or Department</label>
             <input class="form-control" id="BFPO-unit-regiment-department" type="text">
             </div>
 
             <div class="form-group">
-            <label class="form-label" for="BFPO-operation-name">Operation name (if applicable)</label>
+            <label class="form-label-bold" for="BFPO-operation-name">Operation name (if applicable)</label>
             <input class="form-control" id="BFPO-operation-name" type="text">
             </div>
 
