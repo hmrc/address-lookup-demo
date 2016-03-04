@@ -1,4 +1,4 @@
-@()(implicit request: Request[_])
+@(countries:List[String], addressList:Option[List[controllers.Address]], errorMessage:Option[String])(implicit request: Request[_])
 
 <script src="assets/javascripts/vendor/jquery-1.11.0.min.js"></script>
 <script src="assets/javascripts/selection-buttons.js"></script>
@@ -12,16 +12,16 @@
     </p>
 </div>
 
-@main_template(title = "Hello from address-lookup-demo", bodyClasses = None) {
+@main_template(title = "Address lookup demo", bodyClasses = None) {
 
-<h1>Your Address</h1>
+<h1 class="heading-xlarge">Your Address</h1>
 
-<label for="location">Choose your location</label>
-<form>
+<form action="address-lookup-selection" method="get">
     <fieldset class="inline">
 
         <legend class="visuallyhidden">Choose your location</legend>
 
+        <label class="form-label-bold" for="location">Choose your location</label>
         <div class="form-group" id="location">
             <label class="block-label" data-target="example-UK" for="location-UK">
                 <input id="location-UK" type="radio" name="radio-inline-group" value="UK">
@@ -41,22 +41,69 @@
 
         <div class="panel panel-border-narrow" id="example-UK">
 
+
+            @for( addrX <- addressList ) {
+                @if(addrX.length > 50) {
+                    <div class="form-group">
+                        <div style="background: #FFBF47; padding: 15px">
+                            <h2>Over 50 addresses found</h2>
+                            <p>Please enter a house name or number.</p>
+                        </div>
+                    </div>
+                }
+            }
+
+
             <div class="form-group">
-                <label class="form-label" for="house-name-number">House name or number</label>
+                <label class="form-label-bold" for="house-name-number">House name or number</label>
                     <input class="form-control" id="house-name-number" name="house-name-number" type="text">
-                <label class="form-checkbox" for="checkbox-no-fixed-address">
-                    <input id="checkbox-no-fixed-address" name="no-fixed-address" type="checkbox" value="true-no-fixed-address">
+                <label class="form-checkbox" for="no-fixed-address">
+                    <input id="no-fixed-address" name="no-fixed-address" type="checkbox" value="true">
                     I have no fixed address
                 </label>
             </div>
 
-            <div class="form-group">
-                <label class="form-label" for="UK-postcode">Post code</label>
-                    <input class="form-control" id="UK-postcode" type="text" maxlength="8">
+
+            @if(errorMessage.isEmpty){
+                <div class="form-group">
+                    <label class="form-label-bold" for="UK-postcode">Post code</label>
+                    <input class="form-control" id="UK-postcode" name="UK-postcode" type="text" maxlength="8">
+                </div>
+            } else {
+            <div class="form-group error">
+
+                <label for="error-UK-postcode">
+                    <span class="form-label-bold">Post code</span>
+                    <span class="form-hint">A post code is required</span>
+                    <span class="error-message" id="error-message-postcode">Post code was left blank</span>
+                </label>
+                <input class="form-control" id="error-UK-postcode" type="text" name="UK-postcode" value="" aria-describedby="error-message-postcode">
+
             </div>
+            }
+
+
+            @for( addrX <- addressList ) {
+            @if(addrX.length <= 50) {
+                <div class="form-group">
+                    <label class="form-label-bold" for="Address-table">Found addresses</label>
+                    <table id="Address-table">
+                        <tbody>
+                        @for(  addr <- addrX ) {
+                            <tr>
+                                <td class="selection"><input id='@{addr.uprn}' type="radio" name="radio-inline-group" value="Address-selection"></td>
+                                <td><label for='@{addr.uprn}'>@{addr.toAddrString}</label></td>
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                }
+            }
 
             <div class="form-group">
-                <input class="button" type="submit" value="Find address" disabled>
+                <input class="button" type="submit" value="Find address">
+                or <a href="#">edit this address</a>
             </div>
 
         </div>
@@ -65,203 +112,16 @@
         <div class="panel panel-border-narrow" id="example-INT" style="display: none;">
 
             <div class="form-group">
-                <label class="form-label" for="int-country">Country</label>
+                <label class="form-label-bold" for="int-country">Country</label>
                 <select class="form-control" id="int-country">
-                    <option>Afghanistan</option>
-                    <option>Albania</option>
-                    <option>Algeria</option>
-                    <option>Andorra</option>
-                    <option>Angola</option>
-                    <option>Antigua and Barbuda</option>
-                    <option>Argentina</option>
-                    <option>Armenia</option>
-                    <option>Australia</option>
-                    <option>Austria</option>
-                    <option>Azerbaijan</option>
-                    <option>Bahamas</option>
-                    <option>Bahrain</option>
-                    <option>Bangladesh</option>
-                    <option>Barbados</option>
-                    <option>Belarus</option>
-                    <option>Belgium</option>
-                    <option>Belize</option>
-                    <option>Benin</option>
-                    <option>Bermuda</option>
-                    <option>Bhutan</option>
-                    <option>Bolivia</option>
-                    <option>Bosnia and Herzegovina</option>
-                    <option>Botswana</option>
-                    <option>Brazil</option>
-                    <option>Brunei</option>
-                    <option>Bulgaria</option>
-                    <option>Burkina Faso</option>
-                    <option>Burma</option>
-                    <option>Burundi</option>
-                    <option>Cambodia</option>
-                    <option>Cameroon</option>
-                    <option>Canada</option>
-                    <option>Cape Verde</option>
-                    <option>Central African Republic</option>
-                    <option>Chad</option>
-                    <option>Chile</option>
-                    <option>China</option>
-                    <option>Colombia</option>
-                    <option>Comoros</option>
-                    <option>Congo, Democratic Republic</option>
-                    <option>Congo, Republic of the</option>
-                    <option>Costa Rica</option>
-                    <option>Cote d'Ivoire</option>
-                    <option>Croatia</option>
-                    <option>Cuba</option>
-                    <option>Cyprus</option>
-                    <option>Czech Republic</option>
-                    <option>Denmark</option>
-                    <option>Djibouti</option>
-                    <option>Dominica</option>
-                    <option>Dominican Republic</option>
-                    <option>East Timor</option>
-                    <option>Ecuador</option>
-                    <option>Egypt</option>
-                    <option>El Salvador</option>
-                    <option>Equatorial Guinea</option>
-                    <option>Eritrea</option>
-                    <option>Estonia</option>
-                    <option>Ethiopia</option>
-                    <option>Fiji</option>
-                    <option>Finland</option>
-                    <option>France</option>
-                    <option>Gabon</option>
-                    <option>Gambia</option>
-                    <option>Georgia</option>
-                    <option>Germany</option>
-                    <option>Ghana</option>
-                    <option>Greece</option>
-                    <option>Greenland</option>
-                    <option>Grenada</option>
-                    <option>Guatemala</option>
-                    <option>Guinea</option>
-                    <option>Guinea-Bissau</option>
-                    <option>Guyana</option>
-                    <option>Haiti</option>
-                    <option>Honduras</option>
-                    <option>Hong Kong</option>
-                    <option>Hungary</option>
-                    <option>Iceland</option>
-                    <option>India</option>
-                    <option>Indonesia</option>
-                    <option>Iran</option>
-                    <option>Iraq</option>
-                    <option>Ireland</option>
-                    <option>Israel</option>
-                    <option>Italy</option>
-                    <option>Jamaica</option>
-                    <option>Japan</option>
-                    <option>Jordan</option>
-                    <option>Kazakhstan</option>
-                    <option>Kenya</option>
-                    <option>Kiribati</option>
-                    <option>Korea, North</option>
-                    <option>Korea, South</option>
-                    <option>Kuwait</option>
-                    <option>Kyrgyzstan</option>
-                    <option>Laos</option>
-                    <option>Latvia</option>
-                    <option>Lebanon</option>
-                    <option>Lesotho</option>
-                    <option>Liberia</option>
-                    <option>Libya</option>
-                    <option>Liechtenstein</option>
-                    <option>Lithuania</option>
-                    <option>Luxembourg</option>
-                    <option>Macedonia</option>
-                    <option>Madagascar</option>
-                    <option>Malawi</option>
-                    <option>Malaysia</option>
-                    <option>Maldives</option>
-                    <option>Mali</option>
-                    <option>Malta,</option>
-                    <option>Marshall Islands</option>
-                    <option>Mauritania</option>
-                    <option>Mauritius</option>
-                    <option>Mexico</option>
-                    <option>Micronesia</option>
-                    <option>Moldova</option>
-                    <option>Mongolia</option>
-                    <option>Morocco</option>
-                    <option>Monaco</option>
-                    <option>Mozambique</option>
-                    <option>Namibia</option>
-                    <option>Nauru</option>
-                    <option>Nepal</option>
-                    <option>Netherlands</option>
-                    <option>New Zealand</option>
-                    <option>Nicaragua</option>
-                    <option>Niger</option>
-                    <option>Nigeria</option>
-                    <option>Norway</option>
-                    <option>Oman</option>
-                    <option>Pakistan</option>
-                    <option>Panama</option>
-                    <option>Papua New Guinea</option>
-                    <option>Paraguay</option>
-                    <option>Peru</option>
-                    <option>Philippines</option>
-                    <option>Poland</option>
-                    <option>Portugal</option>
-                    <option>Qatar</option>
-                    <option>Romania</option>
-                    <option>Russia</option>
-                    <option>Rwanda</option>
-                    <option>Samoa</option>
-                    <option>San Marino</option>
-                    <option>Sao Tome</option>
-                    <option>Saudi Arabia</option>
-                    <option>Senegal</option>
-                    <option>Serbia and Montenegro</option>
-                    <option>Seychelles</option>
-                    <option>Sierra Leone</option>
-                    <option>Singapore</option>
-                    <option>Slovakia</option>
-                    <option>Slovenia</option>
-                    <option>Solomon Islands</option>
-                    <option>Somalia</option>
-                    <option>South Africa</option>
-                    <option>Spain</option>
-                    <option>Sri Lanka</option>
-                    <option>Sudan</option>
-                    <option>Suriname</option>
-                    <option>Swaziland</option>
-                    <option>Sweden</option>
-                    <option>Switzerland</option>
-                    <option>Syria</option>
-                    <option>Taiwan</option>
-                    <option>Tajikistan</option>
-                    <option>Tanzania</option>
-                    <option>Thailand</option>
-                    <option>Tibet</option>
-                    <option>Togo</option>
-                    <option>Tonga</option>
-                    <option>Trinidad and Tobago</option>
-                    <option>Tunisia</option>
-                    <option>Turkey</option>
-                    <option>Turkmenistan</option>
-                    <option>Uganda</option>
-                    <option>Ukraine</option>
-                    <option>United Arab Emirates</option>
-                    <option>United States</option>
-                    <option>Uruguay</option>
-                    <option>Uzbekistan</option>
-                    <option>Vanuatu</option>
-                    <option>Venezuela</option>
-                    <option>Vietnam</option>
-                    <option>Yemen</option>
-                    <option>Zambia</option>
-                    <option>Zimbabwe</option>
+                    @for(country <- countries) {
+                        <option>@country</option>
+                    }
                 </select>
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="int-address">Address</label>
+                <label class="form-label-bold" for="int-address">Address</label>
                 <textarea class="form-control" rows="5" id="int-address"></textarea>
             </div>
 
@@ -274,37 +134,37 @@
         <div class="panel panel-border-narrow" id="example-BFPO" style="display: none;">
 
             <div class="form-group">
-            <label class="form-label" for="BFPO-postcode">BFPO post code</label>
+            <label class="form-label-bold" for="BFPO-postcode">BFPO post code</label>
             <input class="form-control" id="BFPO-postcode" type="text">
             </div>
 
             <div class="form-group">
-            <label class="form-label" for="BFPO-number">BFPO number</label>
+            <label class="form-label-bold" for="BFPO-number">BFPO number</label>
             <input class="form-control" id="BFPO-number" type="text">
             </div>
 
             <div class="form-group">
-            <label class="form-label" for="BFPO-service-number">Service number</label>
+            <label class="form-label-bold" for="BFPO-service-number">Service number</label>
             <input class="form-control" id="BFPO-service-number" type="text">
             </div>
 
             <div class="form-group">
-            <label class="form-label" for="BFPO-rank">Rank</label>
+            <label class="form-label-bold" for="BFPO-rank">Rank</label>
             <input class="form-control" id="BFPO-rank" type="text">
             </div>
 
             <div class="form-group">
-            <label class="form-label" for="BFPO-name">Name</label>
+            <label class="form-label-bold" for="BFPO-name">Name</label>
             <input class="form-control" id="BFPO-name" type="text">
             </div>
 
             <div class="form-group">
-            <label class="form-label" for="BFPO-unit-regiment-department">Unit,Regiment and/or Department</label>
+            <label class="form-label-bold" for="BFPO-unit-regiment-department">Unit,Regiment and/or Department</label>
             <input class="form-control" id="BFPO-unit-regiment-department" type="text">
             </div>
 
             <div class="form-group">
-            <label class="form-label" for="BFPO-operation-name">Operation name (if applicable)</label>
+            <label class="form-label-bold" for="BFPO-operation-name">Operation name (if applicable)</label>
             <input class="form-control" id="BFPO-operation-name" type="text">
             </div>
 
