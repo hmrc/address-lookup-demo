@@ -16,23 +16,18 @@
 
 package controllers
 
-import play.api.Play.current
-import play.api.data.validation.Constraints._
+import com.typesafe.config.ConfigFactory
 import play.api.data._
 import play.api.data.Forms._
-import play.api.libs.json.Json
-import play.api.libs.ws.WS
+import services.{AddressLookupService, Address}
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 import play.api.mvc._
 import views.html.addresslookup._
 import scala.concurrent.Future
-import play.api.libs.json.Json
-import play.api.libs.json._
-import play.api.libs.functional.syntax._
 
 object AddressLookup extends AddressLookup
 
-trait AddressLookup extends FrontendController {
+trait AddressLookup extends FrontendController  {
 
   val countries = List[String](
       "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda",
@@ -60,12 +55,12 @@ trait AddressLookup extends FrontendController {
       "Tajikistan", "Tanzania", "Thailand", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey",
       "Turkmenistan", "Uganda", "Ukraine", "United Arab Emirates", "United States",
       "Uruguay", "Uzbekistan", "Vanuatu", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"
-)
+  )
 
-  val errorMessage = None // Some("this is an error")
+  val NoErrorMessage:Option[List[AddressErrorMsg]] = None // Some("this is an error")
 
   val addressLookup = Action.async { implicit request =>
-    Future.successful(Ok(address_lookup(countries, None, errorMessage)))
+    Future.successful(Ok(address_lookup(AddressTypedDetails.empty, countries, None, NoErrorMessage)))
   }
 
   case class AddressData(nameNo: Option[String], postcode: String, noFixed: Option[String])
@@ -78,45 +73,48 @@ trait AddressLookup extends FrontendController {
   }
 
 
-  implicit val addrReader: Reads[Address] = (
-    (JsPath \ "id").read[String] and
-    (JsPath \\ "lines").read[Array[String]] and
-    (JsPath \\ "town").read[String] and
-    (JsPath \\ "postcode").read[String]
-    )( Address.apply _ )
+//  val conf = ConfigFactory.load()
+//  val lookupServer = conf.getString("address-lookup-server")
+//
+//  val url = s"https://$lookupServer/address-lookup/v1/uk/addresses.json"
 
 
-  val url = "https://www-staging.tax.service.gov.uk/address-lookup/v1/uk/addresses.json"
   val addressLookupSelection = Action.async { implicit request =>
     addressForm.bindFromRequest().fold(
       formWithErrors => Future.successful(BadRequest),
       address => {
         if (address.postcode == "") {
-          Future.successful(Ok(address_lookup(countries, None, Some("NO Postcode"))))
-
+          Future.successful(Ok(address_lookup(AddressTypedDetails(address.postcode), countries, None, Some(List(NoPostCode())))))
         } else {
-          println("-------------->" + address)
-          println("IM SENDING THIS POSTCODE__________" + address.postcode)
-          WS.url(url).withHeaders("X-Hmrc-Origin" -> "addressLookupDemo").withQueryString("postcode" -> address.postcode, "filter" -> address.nameNo.getOrElse("")).get().map { r =>
-            println("---------------->" + r.body)
-            val addrs = Json.parse(r.body).asInstanceOf[play.api.libs.json.JsArray]
-
-            val addressList: Option[List[Address]] = Some(addrs.value.map { i => i.as[Address] }.toList)
-            Ok(address_lookup(countries, addressList, errorMessage))
-
+          AddressLookupService.findAddresses(address.postcode, address.nameNo) map {
+            case Right(addressList) =>
+              Ok(address_lookup(AddressTypedDetails(address.postcode, address.nameNo.getOrElse("")), countries, addressList, if (addressList.exists(_.isEmpty)) Some(List(NoMatchesFound())) else NoErrorMessage))
+            case Left(err) => err
           }
         }
       }
     )
   }
-}
 
 
-case class Address(uprn: String, lines: Array[String], town: String, postcode: String) {
-  def toAddrString:String = {
-    val lineStr = lines.mkString(" ")
-    s"$lineStr $town $postcode"
+  val addressLookupEdit = Action.async { implicit request =>
+    Future.successful( Ok(address_lookup(AddressTypedDetails.empty, countries, None,  Some(List(AddManualEntry())) ) ))
   }
 }
+
+
+
+
+object AddressTypedDetails {
+  def empty = AddressTypedDetails("", "")
+}
+
+case class AddressTypedDetails( postcode:String, flatNumber:String = "", line1:String = "", line2:String = "", town:String = "", county:String = "" )
+
+
+sealed abstract class AddressErrorMsg(msg:String)
+case class NoPostCode() extends AddressErrorMsg("NO Postcode")
+case class NoMatchesFound() extends AddressErrorMsg("No addresses found")
+case class AddManualEntry() extends AddressErrorMsg("Manual entry")
 
 
