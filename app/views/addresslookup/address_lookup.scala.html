@@ -1,4 +1,4 @@
-@(countries:List[String], addressList:Option[List[controllers.Address]], errorMessage:Option[String])(implicit request: Request[_])
+@(typedDetails: AddressTypedDetails, countries: List[String], addressList: Option[List[services.Address]], errorMessage: Option[List[AddressErrorMsg]] = None)(implicit request: Request[_])
 
 <script src="assets/javascripts/vendor/jquery-1.11.0.min.js"></script>
 <script src="assets/javascripts/selection-buttons.js"></script>
@@ -14,17 +14,18 @@
 
 @main_template(title = "Address lookup demo", bodyClasses = None) {
 
-<h1 class="heading-xlarge">Your Address</h1>
+<div>
+    <h1 class="heading-xlarge">Your Address</h1>
 
-<form action="address-lookup-selection" method="get">
-    <fieldset class="inline">
 
         <legend class="visuallyhidden">Choose your location</legend>
 
+
         <label class="form-label-bold" for="location">Choose your location</label>
+    <fieldset class="inline">
         <div class="form-group" id="location">
             <label class="block-label" data-target="example-UK" for="location-UK">
-                <input id="location-UK" type="radio" name="radio-inline-group" value="UK">
+                <input id="location-UK" type="radio" name="radio-inline-group" value="UK" checked="checked" focus>
                 United Kingdom
             </label>
 
@@ -40,142 +41,19 @@
         </div>
 
         <div class="panel panel-border-narrow" id="example-UK">
-
-
-            @for( addrX <- addressList ) {
-                @if(addrX.length > 50) {
-                    <div class="form-group">
-                        <div style="background: #FFBF47; padding: 15px">
-                            <h2>Over 50 addresses found</h2>
-                            <p>Please enter a house name or number.</p>
-                        </div>
-                    </div>
-                }
-            }
-
-
-            <div class="form-group">
-                <label class="form-label-bold" for="house-name-number">House name or number</label>
-                    <input class="form-control" id="house-name-number" name="house-name-number" type="text">
-                <label class="form-checkbox" for="no-fixed-address">
-                    <input id="no-fixed-address" name="no-fixed-address" type="checkbox" value="true">
-                    I have no fixed address
-                </label>
-            </div>
-
-
-            @if(errorMessage.isEmpty){
-                <div class="form-group">
-                    <label class="form-label-bold" for="UK-postcode">Post code</label>
-                    <input class="form-control" id="UK-postcode" name="UK-postcode" type="text" maxlength="8">
-                </div>
-            } else {
-            <div class="form-group error">
-
-                <label for="error-UK-postcode">
-                    <span class="form-label-bold">Post code</span>
-                    <span class="form-hint">A post code is required</span>
-                    <span class="error-message" id="error-message-postcode">Post code was left blank</span>
-                </label>
-                <input class="form-control" id="error-UK-postcode" type="text" name="UK-postcode" value="" aria-describedby="error-message-postcode">
-
-            </div>
-            }
-
-
-            @for( addrX <- addressList ) {
-            @if(addrX.length <= 50) {
-                <div class="form-group">
-                    <label class="form-label-bold" for="Address-table">Found addresses</label>
-                    <table id="Address-table">
-                        <tbody>
-                        @for(  addr <- addrX ) {
-                            <tr>
-                                <td class="selection"><input id='@{addr.uprn}' type="radio" name="radio-inline-group" value="Address-selection"></td>
-                                <td><label for='@{addr.uprn}'>@{addr.toAddrString}</label></td>
-                            </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-                }
-            }
-
-            <div class="form-group">
-                <input class="button" type="submit" value="Find address">
-                or <a href="#">edit this address</a>
-            </div>
-
+            @ukTab(typedDetails, addressList, errorMessage)
         </div>
 
-
         <div class="panel panel-border-narrow" id="example-INT" style="display: none;">
-
-            <div class="form-group">
-                <label class="form-label-bold" for="int-country">Country</label>
-                <select class="form-control" id="int-country">
-                    @for(country <- countries) {
-                        <option>@country</option>
-                    }
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label-bold" for="int-address">Address</label>
-                <textarea class="form-control" rows="5" id="int-address"></textarea>
-            </div>
-
-            <div class="form-group">
-                <input class="button" type="submit" value="Continue" disabled>
-            </div>
-
+            @intTab(countries)
         </div>
 
         <div class="panel panel-border-narrow" id="example-BFPO" style="display: none;">
-
-            <div class="form-group">
-            <label class="form-label-bold" for="BFPO-postcode">BFPO post code</label>
-            <input class="form-control" id="BFPO-postcode" type="text">
-            </div>
-
-            <div class="form-group">
-            <label class="form-label-bold" for="BFPO-number">BFPO number</label>
-            <input class="form-control" id="BFPO-number" type="text">
-            </div>
-
-            <div class="form-group">
-            <label class="form-label-bold" for="BFPO-service-number">Service number</label>
-            <input class="form-control" id="BFPO-service-number" type="text">
-            </div>
-
-            <div class="form-group">
-            <label class="form-label-bold" for="BFPO-rank">Rank</label>
-            <input class="form-control" id="BFPO-rank" type="text">
-            </div>
-
-            <div class="form-group">
-            <label class="form-label-bold" for="BFPO-name">Name</label>
-            <input class="form-control" id="BFPO-name" type="text">
-            </div>
-
-            <div class="form-group">
-            <label class="form-label-bold" for="BFPO-unit-regiment-department">Unit,Regiment and/or Department</label>
-            <input class="form-control" id="BFPO-unit-regiment-department" type="text">
-            </div>
-
-            <div class="form-group">
-            <label class="form-label-bold" for="BFPO-operation-name">Operation name (if applicable)</label>
-            <input class="form-control" id="BFPO-operation-name" type="text">
-            </div>
-
-            <div class="form-group">
-            <input class="button" type="submit" value="Continue" disabled>
-            </div>
-
+            @bfpoTab()
         </div>
+
 
     </fieldset>
 
-</form>
-
+</div>
 }

@@ -1,0 +1,107 @@
+@(typedDetails: AddressTypedDetails, addressList: Option[List[services.Address]], errorMessage: Option[List[AddressErrorMsg]], maxAddresses: Int = 50)(implicit request: Request[_])
+
+
+    <form action="address-lookup-selection" method="get">
+
+        @for( addrX <- addressList) {
+            @if(addrX.length > maxAddresses) {
+                <div class="form-group">
+                    <div style="background: #FFBF47 ; padding: 15px">
+                        <h2>Over @maxAddresses addresses found</h2>
+                        <p>Please enter a house name or number.</p>
+                    </div>
+                </div>
+            }
+        }
+
+        @if(errorMessage.exists( f => f.contains(NoMatchesFound() ))) {
+            <div class="form-group">
+                <div style="background: #FFBF47 ; padding: 15px">
+                    <h2>No addresses found for given Post code</h2>
+                    <p>Please enter a postcode or select 'edit this address'.</p>
+                </div>
+            </div>
+        }
+
+
+            <div class="form-group">
+        <label class="form-label-bold" for="house-name-number">House name or number</label>
+        <input class="form-control" id="house-name-number" name="house-name-number" type="text" value='@{
+            typedDetails.flatNumber
+        }'>
+        <label class="form-checkbox" for="no-fixed-address">
+            <input id="no-fixed-address" name="no-fixed-address" type="checkbox" value="true">
+            I have no fixed address
+        </label>
+    </div>
+
+        @if(errorMessage.exists( f => f.contains(NoPostCode() ))) {
+            <div class="form-group error">
+
+                <label for="error-UK-postcode">
+                    <span class="form-label-bold">Post code</span>
+                    <span class="form-hint">A post code is required</span>
+                    <span class="error-message" id="error-message-postcode">Post code was left blank</span>
+                </label>
+                <input class="form-control" id="error-UK-postcode" type="text" name="UK-postcode" value="" aria-describedby="error-message-postcode">
+            </div>
+
+        } else {
+            <div class="form-group">
+                <label class="form-label-bold" for="UK-postcode">Post code</label>
+                <input class="form-control" id="UK-postcode" name="UK-postcode" type="text" maxlength="8" value='@{
+                    typedDetails.postcode
+                }'>
+            </div>
+        }
+
+
+        @for( addrX <- addressList) {
+            @if(addrX.length <= maxAddresses) {
+                <div class="form-group">
+                    <label class="form-label-bold" for="Address-table">Found addresses</label>
+                    <table id="Address-table">
+                        <tbody>
+                        @for( addr <- addrX) {
+                            <tr>
+                                <td class="selection"><input id='@{
+                                    addr.uprn
+                                }' type="radio" name="radio-inline-group" value="Address-selection">
+                                </td>
+                                <td><label for='@{
+                                    addr.uprn
+                                }'>@{
+                                    addr.toAddrString
+                                }</label>
+                                </td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        }
+
+        @if(errorMessage.exists( f => f.contains(AddManualEntry() ))) {
+            <div class="form-group">
+                <h2>Amend address</h2>
+                <label class="form-label" for="UK-address-line1">Address line 1</label>
+                <input class="form-control" id="UK-address-line1" name="UK-postcode" type="text" maxlength="8" value='@{typedDetails.line1}'>
+                <label class="form-label" for="UK-address-line2">Address line 2</label>
+                <input class="form-control" id="UK-address-line2" name="UK-postcode" type="text" maxlength="8" value='@{typedDetails.line2}'>
+                <label class="form-label" for="UK-address-town">Nearest town or city</label>
+                <input class="form-control" id="UK-address-town" name="UK-postcode" type="text" maxlength="8" value='@{typedDetails.town}'>
+                <label class="form-label" for="UK-address-county">County</label>
+                <input class="form-control" id="UK-address-county" name="UK-postcode" type="text" maxlength="8" value='@{typedDetails.county}'>
+            </div>
+
+        }
+
+    <div class="form-group">
+        <input class="button" type="submit" value="Find address">
+        or <a href="address-lookup-edit-address">edit this address</a>
+    </div>
+
+    </form>
+
+

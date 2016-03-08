@@ -1,0 +1,24 @@
+@(countries:List[String])(implicit request: Request[_])
+
+
+  <form action="address-lookup-init-form" method="get">
+
+  <div class="form-group">
+    <label class="form-label-bold" for="int-country">Country</label>
+    <select class="form-control" id="int-country">
+      @for(country <- countries) {
+        <option>@country</option>
+      }
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label-bold" for="int-address">Address</label>
+    <textarea class="form-control" rows="5" id="int-address"></textarea>
+  </div>
+
+  <div class="form-group">
+    <input class="button" type="submit" value="Continue" disabled>
+  </div>
+
+    </form>
