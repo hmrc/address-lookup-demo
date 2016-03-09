@@ -75,12 +75,11 @@ trait AddressLookup extends FrontendController {
 
 
   val addressLookupSelection = Action.async { implicit request =>
-    println(">>> SelectionAddress: " + request.body)
     addressForm.bindFromRequest().fold(
       formWithErrors => Future.successful(BadRequest),
       address => {
         if (address.hiddenselection.nonEmpty) {
-          Future.successful( Ok(address_lookup(AddressTypedDetails.empty, countries, None, Some(List(AddManualEntry())))))
+          Future.successful( Ok(address_lookup(AddressTypedDetails(address.postcode, address.nameNo.getOrElse("")), countries, None, Some(List(AddManualEntry())))))
         } else {
           if (address.postcode == "") {
             Future.successful(Ok(address_lookup(AddressTypedDetails(address.postcode), countries, None, Some(List(NoPostCode())))))
@@ -94,12 +93,6 @@ trait AddressLookup extends FrontendController {
         }
       }
     )
-  }
-
-
-  val addressLookupEdit = Action.async { implicit request =>
-    println(">>> EditAddress: " + request.body)
-    Future.successful(Ok(address_lookup(AddressTypedDetails.empty, countries, None, Some(List(AddManualEntry())))))
   }
 }
 
