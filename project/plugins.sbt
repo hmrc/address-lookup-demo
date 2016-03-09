@@ -1,8 +1,12 @@
 credentials += Credentials(Path.userHome / ".sbt" / ".credentials")
 
-val hmrcRepoHost = java.lang.System.getProperty("hmrc.repo.host", "https://nexus-preview.tax.service.gov.uk")
 
-resolvers ++= Seq(Resolver.url("hmrc-sbt-plugin-releases", url("https://dl.bintray.com/hmrc/sbt-plugin-releases"))(Resolver.ivyStylePatterns))
+resolvers += Resolver.url("hmrc-sbt-plugin-releases",
+  url("https://dl.bintray.com/hmrc/sbt-plugin-releases"))(Resolver.ivyStylePatterns)
+
+resolvers += "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases/"
+
+
 
 addSbtPlugin("com.github.gseitz" % "sbt-release" % "0.8.3")
 
