@@ -61,7 +61,6 @@ private object Repositories {
 
   import uk.gov.hmrc._
   import PublishingSettings._
-  import NexusPublishing._
 
   lazy val playPublishingSettings : Seq[sbt.Setting[_]] = sbtrelease.ReleasePlugin.releaseSettings ++ Seq(
 
@@ -70,6 +69,5 @@ private object Repositories {
     publishArtifact in(Compile, packageDoc) := false,
     publishArtifact in(Compile, packageSrc) := false
   ) ++
-    publishAllArtefacts ++
-    nexusPublishingSettings
+    publishAllArtefacts
 }
