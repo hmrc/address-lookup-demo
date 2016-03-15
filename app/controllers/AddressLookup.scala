@@ -29,6 +29,8 @@ object AddressLookup extends AddressLookup
 
 trait AddressLookup extends FrontendController {
 
+  import scala.concurrent.ExecutionContext.Implicits.global
+
   val countries = List[String](
     "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda",
     "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh",
@@ -60,39 +62,73 @@ trait AddressLookup extends FrontendController {
   val NoErrorMessage: Option[List[AddressErrorMsg]] = None // Some("this is an error")
 
   val addressLookup = Action.async { implicit request =>
-    Future.successful(Ok(address_lookup(AddressTypedDetails.empty, countries, None, NoErrorMessage)))
+    Future.successful(Ok(address_lookup(AddressTypedDetails.empty, None, countries, None, NoErrorMessage)))
   }
 
-  case class AddressData(nameNo: Option[String], postcode: String, hiddenselection: Option[String], noFixed: Option[String])
+  case class AddressData(nameNo: Option[String], postcode: String, hiddenselection: Option[String], noFixed: Option[String], id: Option[String])
 
   val addressForm = Form[AddressData] {
     mapping("house-name-number" -> optional(text),
       "UK-postcode" -> text,
       "hiddenselection" -> optional(text),
-      "no-fixed-address" -> optional(text)
+      "no-fixed-address" -> optional(text),
+      "radio-inline-group" -> optional(text)
     )(AddressData.apply)(AddressData.unapply)
   }
 
+
+
+  def lookupAddr(id: String, postcode:String): Future[Option[Address]] = {
+    AddressLookupService.findAddresses(postcode, None).map{
+      case Right(opAddrList) => opAddrList match {
+        case Some(addrLst) =>
+          val matches = addrLst.filter( a => a.uprn == id)
+          if( matches.nonEmpty) matches.headOption else None
+        case None => None
+      }
+      case Left(err) => None
+    }
+
+  }
 
   val addressLookupSelection = Action.async { implicit request =>
     addressForm.bindFromRequest().fold(
       formWithErrors => Future.successful(BadRequest),
       address => {
-        if (address.hiddenselection.nonEmpty) {
-          Future.successful( Ok(address_lookup(AddressTypedDetails(address.postcode, address.nameNo.getOrElse("")), countries, None, Some(List(AddManualEntry())))))
-        } else {
-          if (address.postcode == "") {
-            Future.successful(Ok(address_lookup(AddressTypedDetails(address.postcode), countries, None, Some(List(NoPostCode())))))
-          } else {
-            AddressLookupService.findAddresses(address.postcode, address.nameNo) map {
-              case Right(addressList) =>
-                Ok(address_lookup(AddressTypedDetails(address.postcode, address.nameNo.getOrElse("")), countries, addressList, if (addressList.exists(_.isEmpty)) Some(List(NoMatchesFound())) else NoErrorMessage))
-              case Left(err) => err
-            }
-          }
-        }
+        if (address.hiddenselection.nonEmpty) editButton(address) else continueButton(address)
       }
     )
+  }
+
+
+  def continueButton(address:AddressData)(implicit request:Request[_]):Future[Result] = {
+    if (address.noFixed.contains("true")){
+      Future.successful(Ok(confirmationPage(AddressTypedDetails.empty, None, true)))
+    } else if (address.id.nonEmpty) {
+      lookupAddr(address.id.get, address.postcode).map{ addr =>
+        Ok(confirmationPage(AddressTypedDetails.empty, addr, false))
+      }
+    } else {
+      if (address.postcode == "") {
+        Future.successful(Ok(address_lookup(AddressTypedDetails(address.postcode), None, countries, None, Some(List(NoPostCode())))))
+      } else {
+        AddressLookupService.findAddresses(address.postcode, address.nameNo) map {
+          case Right(addressList) =>
+            Ok(address_lookup(AddressTypedDetails(address.postcode, address.nameNo.getOrElse("")), None, countries, addressList, if (addressList.exists(_.isEmpty)) Some(List(NoMatchesFound())) else NoErrorMessage))
+          case Left(err) => err
+        }
+      }
+    }
+  }
+
+  def editButton(address:AddressData)(implicit request:Request[_]): Future[Result] =  {
+    if (address.id.nonEmpty) {
+      lookupAddr(address.id.get, address.postcode).map{ addr =>
+        Ok(address_lookup(AddressTypedDetails(address.postcode, address.nameNo.getOrElse("")), addr, countries, None, Some(List(AddManualEntry()))))
+      }
+    } else {
+      Future.successful(Ok(address_lookup(AddressTypedDetails(address.postcode, address.nameNo.getOrElse("")), None, countries, None, Some(List(AddManualEntry())))))
+    }
   }
 }
 

@@ -1,10 +1,11 @@
-@(typedDetails: AddressTypedDetails, addressList: Option[List[services.Address]], errorMessage: Option[List[AddressErrorMsg]], maxAddresses: Int = 50)(implicit request: Request[_])
+@(typedDetails: AddressTypedDetails, addressList: Option[List[services.Address]], address:Option[services.Address], errorMessage: Option[List[AddressErrorMsg]], maxAddresses: Int = 50)(implicit request: Request[_])
 
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script>
 <script src="http://malsup.github.com/jquery.form.js"></script>
 
 <script>
         $(document).ready(function() {
+        $("#myForm").find("#hiddenselection").prop('checked', false);
             $('#editAddress').click(function(){
                 $("#myForm").find("#hiddenselection").prop('checked', true);
                 $("#myForm").submit();
@@ -72,7 +73,7 @@
 
 
         @for( addrX <- addressList) {
-            @if(addrX.length <= maxAddresses) {
+            @if(addrX.length <= maxAddresses && !errorMessage.exists( f => f.contains(NoMatchesFound() ))) {
                 <div class="form-group">
                     <label class="form-label-bold" for="Address-table">Found addresses</label>
                     <table id="Address-table">
@@ -81,7 +82,9 @@
                             <tr>
                                 <td class="selection"><input id='@{
                                     addr.uprn
-                                }' type="radio" name="radio-inline-group" value="Address-selection">
+                                }' type="radio" name="radio-inline-group" value='@{
+                                    addr.uprn
+                                }'>
                                 </td>
                                 <td><label for='@{
                                     addr.uprn
@@ -98,24 +101,27 @@
         }
 
         @if(errorMessage.exists( f => f.contains(AddManualEntry() ))) {
-            <div class="form-group">
-                <h2>Amend address</h2>
-                <label class="form-label" for="UK-address-line1">Address line 1</label>
-                <input class="form-control" id="UK-address-line1" name="UK-postcode" type="text" maxlength="8" value='@{typedDetails.line1}'>
-                <label class="form-label" for="UK-address-line2">Address line 2</label>
-                <input class="form-control" id="UK-address-line2" name="UK-postcode" type="text" maxlength="8" value='@{typedDetails.line2}'>
-                <label class="form-label" for="UK-address-town">Nearest town or city</label>
-                <input class="form-control" id="UK-address-town" name="UK-postcode" type="text" maxlength="8" value='@{typedDetails.town}'>
-                <label class="form-label" for="UK-address-county">County</label>
-                <input class="form-control" id="UK-address-county" name="UK-postcode" type="text" maxlength="8" value='@{typedDetails.county}'>
-            </div>
-
+            @if( address.nonEmpty) {
+                <div class="form-group">
+                    <h2>Amend address</h2>
+                    <label class="form-label" for='UK-address-line1'>Address line 1</label>
+                    <input class="form-control" id='UK-address-line1' name="UK-address-line1" type="text" value='@{address.get.line0}'>
+                    <label class="form-label" for='UK-address-line2'>Address line 2</label>
+                    <input class="form-control" id='UK-address-line2' name="UK-address-line2" type="text" value='@{address.get.line1}'>
+                    <label class="form-label" for='UK-address-line3'>Address line 3</label>
+                    <input class="form-control" id='UK-address-line3' name="UK-address-line3" type="text" value='@{address.get.line2}'>
+                    <label class="form-label" for="UK-address-town">Nearest town or city</label>
+                    <input class="form-control" id="UK-address-town" name="UK-town" type="text" value='@address.get.town'>
+                    <label class="form-label" for="UK-address-county">County</label>
+                    <input class="form-control" id="UK-address-county" name="UK-county" type="text">
+                </div>
+            }
         }
 
-    <div class="form-group">
-        <input class="button" type="submit"  value="Find address">
-        or <a href="#"  id="editAddress"> edit this address</a>
-    </div>
+        <div class="form-group">
+            <input class="button" type="submit"  value="Find address">
+            or <a href="#"  id="editAddress"> edit this address</a>
+        </div>
 
     </form>
 

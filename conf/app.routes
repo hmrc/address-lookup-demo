@@ -4,8 +4,7 @@
 
 GET        /hello-world                       controllers.HelloWorld.helloWorld
 GET        /address-lookup                    controllers.AddressLookup.addressLookup
-GET       /address-lookup-selection          controllers.AddressLookup.addressLookupSelection
-
+GET        /address-lookup-selection          controllers.AddressLookup.addressLookupSelection
 
 GET        /assets/*file                      controllers.Assets.at(path="/public", file)
 

@@ -70,4 +70,8 @@ case class Address(uprn: String, lines: Array[String], town: String, postcode: S
     val lineStr = lines.mkString(" ")
     s"$lineStr $town $postcode"
   }
+
+  def line0 = if(lines.length < 1) "" else lines(0)
+  def line1 = if(lines.length < 2) "" else lines(1)
+  def line2 = if(lines.length < 3) "" else lines(2)
 }
