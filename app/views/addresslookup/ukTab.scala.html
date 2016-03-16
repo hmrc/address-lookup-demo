@@ -132,8 +132,10 @@
         }
 
         <div class="form-group">
-            <input class="button" type="submit"  value="Find address">
-            or <a href="#"  id="editAddress"> edit this address</a>
+            <input class="button" type="submit"  value="Continue">
+            @if(addressList.nonEmpty && addressList.getOrElse(List.empty[services.Address]).size <= maxAddresses ){
+                <span>or <a href="#"  id="editAddress"> edit this address</a></span>
+            }
         </div>
 
     </form>
