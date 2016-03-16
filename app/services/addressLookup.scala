@@ -18,6 +18,7 @@ package services
 
 import com.typesafe.config.ConfigFactory
 import controllers.{InvalidPostcode, NoMatchesFound, AddressTypedDetails}
+import play.api.http.Status._
 import play.api.libs.json.{JsPath, Reads}
 import play.api.libs.ws.WS
 import views.html.addresslookup.address_lookup
@@ -28,7 +29,12 @@ import play.api.libs.functional.syntax._
 import scala.concurrent.Future
 
 
-object AddressLookupService {
+trait AddressLookupWS {
+  def findAddresses(postcode: String, filter: Option[String]): Future[Either[Status, Option[List[Address]]]]
+}
+
+trait AddressLookupService extends AddressLookupWS {
+
   import play.api.Play.current
   import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -50,13 +56,16 @@ object AddressLookupService {
       ("postcode", postcode)) ++ filter.map( name =>  "filter" -> name )
 
     WS.url(url).withHeaders("X-Hmrc-Origin" -> "addressLookupDemo").withQueryString(query : _*).get().map {
-      case response if response.status == 200 =>
+      case response if response.status == OK =>
         response.json match {
           case addrs:play.api.libs.json.JsArray =>
             val addressList = Right(Some(addrs.value.map { i => i.as[Address] }.toList))
             addressList
           case err => Left(ServiceUnavailable)
         }
+      case response if response.status == BAD_REQUEST =>
+        Left(BadRequest)
+
       case _ => Left(ServiceUnavailable)
     }
   }

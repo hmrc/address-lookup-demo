@@ -63,12 +63,25 @@
             </div>
 
         } else {
-            <div class="form-group">
-                <label class="form-label-bold" for="UK-postcode">Post code</label>
-                <input class="form-control" id="UK-postcode" name="UK-postcode" type="text" maxlength="8" value='@{
-                    typedDetails.postcode
-                }'>
-            </div>
+
+            @if(errorMessage.exists( f => f.contains(BadlyFormatedPostcode() ))) {
+                <div class="form-group error">
+
+                    <label for="error-UK-postcode">
+                        <span class="form-label-bold">Post code</span>
+                        <span class="form-hint">The postcode was unrecognised</span>
+                        <span class="error-message" id="error-message-postcode">The postcode was unrecognised</span>
+                    </label>
+                    <input class="form-control" id="error-UK-postcode" type="text" name="UK-postcode" value='@{typedDetails.postcode}' aria-describedby="error-message-postcode">
+                </div>
+
+            } else {
+
+                <div class="form-group">
+                    <label class="form-label-bold" for="UK-postcode">Post code</label>
+                    <input class="form-control" id="UK-postcode" name="UK-postcode" type="text" maxlength="8" value='@{typedDetails.postcode}'>
+                </div>
+            }
         }
 
 
