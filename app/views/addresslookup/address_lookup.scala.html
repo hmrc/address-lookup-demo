@@ -1,4 +1,4 @@
-@(typedDetails: AddressTypedDetails, countries: List[String], addressList: Option[List[services.Address]], errorMessage: Option[List[AddressErrorMsg]] = None)(implicit request: Request[_])
+@(typedDetails: AddressTypedDetails, address:Option[services.Address], countries: List[String], addressList: Option[List[services.Address]], errorMessage: Option[List[AddressErrorMsg]] = None)(implicit request: Request[_])
 
 <script src="assets/javascripts/vendor/jquery-1.11.0.min.js"></script>
 <script src="assets/javascripts/selection-buttons.js"></script>
@@ -41,7 +41,7 @@
         </div>
 
         <div class="panel panel-border-narrow" id="example-UK">
-            @ukTab(typedDetails, addressList, errorMessage)
+            @ukTab(typedDetails, addressList, address, errorMessage)
         </div>
 
         <div class="panel panel-border-narrow" id="example-INT" style="display: none;">
