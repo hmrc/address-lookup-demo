@@ -36,16 +36,25 @@
             @if(noFixedAddress) {
                 No fixed address.
             } else {
-            @if( address.nonEmpty) {
-                @for( line <- address.get.lines) {
-                    <p>@line</p>
+                @if( address.nonEmpty) {
+                    @for( line <- address.get.lines) {
+                        <p>@line</p>
+                    }
+                    <p>@address.get.town</p>
+                    <p>@address.get.postcode</p>
+                } else {
+                    @if(typedDetails.line1.nonEmpty) {
+                        <p>@typedDetails.line1</p>
+                        <p>@typedDetails.line2</p>
+                        <p>@typedDetails.line3</p>
+                        <p>@typedDetails.town</p>
+                        <p>@typedDetails.county</p>
+                        <p>@typedDetails.postcode</p>
+                    } else {
+                        ERROR: Unable to find address details
+                    }
                 }
-                <p>@address.get.town</p>
-                <p>@address.get.postcode</p>
-            } else {
-            ERROR: Unable to find address details
             }
-        }
         </span>
     </div>
 
