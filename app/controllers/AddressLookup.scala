@@ -19,18 +19,95 @@ package controllers
 import com.typesafe.config.ConfigFactory
 import play.api.data._
 import play.api.data.Forms._
-import services.{AddressLookupService, Address}
+import play.api.mvc.Results._
+import services.{Address, AddressLookupWS, AddressLookupService}
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 import play.api.mvc._
 import views.html.addresslookup._
 import scala.concurrent.Future
 
-object AddressLookup extends AddressLookup
+object AddressLookup extends AddressLookupController  with AddressLookupService
 
-trait AddressLookup extends FrontendController {
+trait AddressLookupController extends FrontendController {
+  this: AddressLookupWS =>
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
+  val NoErrorMessage: Option[List[AddressErrorMsg]] = None
+
+  val addressLookup: Action[AnyContent] = Action.async { implicit request =>
+    Future.successful(Ok(address_lookup(AddressTypedDetails.empty, None, Countries.countries, None, NoErrorMessage)))
+  }
+
+  case class AddressData(nameNo: Option[String], postcode: String, hiddenselection: Option[String], noFixed: Option[String], id: Option[String])
+
+  val addressForm = Form[AddressData] {
+    mapping("house-name-number" -> optional(text),
+      "UK-postcode" -> text,
+      "hiddenselection" -> optional(text),
+      "no-fixed-address" -> optional(text),
+      "radio-inline-group" -> optional(text)
+    )(AddressData.apply)(AddressData.unapply)
+  }
+
+
+
+  def lookupAddr(id: String, postcode:String): Future[Option[Address]] = {
+    findAddresses(postcode, None).map{
+      case Right(opAddrList) => opAddrList match {
+        case Some(addrLst) =>
+          val matches = addrLst.filter( a => a.uprn == id)
+          if( matches.nonEmpty) matches.headOption else None
+        case None => None
+      }
+      case Left(err) => None
+    }
+
+  }
+
+  val addressLookupSelection: Action[AnyContent] = Action.async { implicit request =>
+    addressForm.bindFromRequest().fold(
+      formWithErrors => Future.successful(BadRequest),
+      address => {
+        if (address.hiddenselection.nonEmpty) editButton(address) else continueButton(address)
+      }
+    )
+  }
+
+
+  def continueButton(address:AddressData)(implicit request:Request[_]):Future[Result] = {
+    if (address.noFixed.contains("true")){
+      Future.successful(Ok(confirmationPage(AddressTypedDetails.empty, None, true)))
+    } else if (address.id.nonEmpty) {
+      lookupAddr(address.id.get, address.postcode).map{ addr =>
+        Ok(confirmationPage(AddressTypedDetails.empty, addr, false))
+      }
+    } else {
+      if (address.postcode == "") {
+        Future.successful(Ok(address_lookup(AddressTypedDetails(address.postcode), None, Countries.countries, None, Some(List(NoPostCode())))))
+      } else {
+        findAddresses(address.postcode, address.nameNo) map {
+          case Right(addressList) =>
+            Ok(address_lookup(AddressTypedDetails(address.postcode, address.nameNo.getOrElse("")), None, Countries.countries, addressList, if (addressList.exists(_.isEmpty)) Some(List(NoMatchesFound())) else NoErrorMessage))
+          case Left(err) => err
+        }
+      }
+    }
+  }
+
+  def editButton(address:AddressData)(implicit request:Request[_]): Future[Result] =  {
+    if (address.id.nonEmpty) {
+      lookupAddr(address.id.get, address.postcode).map{ addr =>
+        Ok(address_lookup(AddressTypedDetails(address.postcode, address.nameNo.getOrElse("")), addr, Countries.countries, None, Some(List(AddManualEntry()))))
+      }
+    } else {
+      Future.successful(Ok(address_lookup(AddressTypedDetails(address.postcode, address.nameNo.getOrElse("")), None, Countries.countries, None, Some(List(AddManualEntry())))))
+    }
+  }
+}
+
+
+object Countries {
   val countries = List[String](
     "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda",
     "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh",
@@ -59,82 +136,11 @@ trait AddressLookup extends FrontendController {
     "Uruguay", "Uzbekistan", "Vanuatu", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"
   )
 
-  val NoErrorMessage: Option[List[AddressErrorMsg]] = None // Some("this is an error")
-
-  val addressLookup = Action.async { implicit request =>
-    Future.successful(Ok(address_lookup(AddressTypedDetails.empty, None, countries, None, NoErrorMessage)))
-  }
-
-  case class AddressData(nameNo: Option[String], postcode: String, hiddenselection: Option[String], noFixed: Option[String], id: Option[String])
-
-  val addressForm = Form[AddressData] {
-    mapping("house-name-number" -> optional(text),
-      "UK-postcode" -> text,
-      "hiddenselection" -> optional(text),
-      "no-fixed-address" -> optional(text),
-      "radio-inline-group" -> optional(text)
-    )(AddressData.apply)(AddressData.unapply)
-  }
-
-
-
-  def lookupAddr(id: String, postcode:String): Future[Option[Address]] = {
-    AddressLookupService.findAddresses(postcode, None).map{
-      case Right(opAddrList) => opAddrList match {
-        case Some(addrLst) =>
-          val matches = addrLst.filter( a => a.uprn == id)
-          if( matches.nonEmpty) matches.headOption else None
-        case None => None
-      }
-      case Left(err) => None
-    }
-
-  }
-
-  val addressLookupSelection = Action.async { implicit request =>
-    addressForm.bindFromRequest().fold(
-      formWithErrors => Future.successful(BadRequest),
-      address => {
-        if (address.hiddenselection.nonEmpty) editButton(address) else continueButton(address)
-      }
-    )
-  }
-
-
-  def continueButton(address:AddressData)(implicit request:Request[_]):Future[Result] = {
-    if (address.noFixed.contains("true")){
-      Future.successful(Ok(confirmationPage(AddressTypedDetails.empty, None, true)))
-    } else if (address.id.nonEmpty) {
-      lookupAddr(address.id.get, address.postcode).map{ addr =>
-        Ok(confirmationPage(AddressTypedDetails.empty, addr, false))
-      }
-    } else {
-      if (address.postcode == "") {
-        Future.successful(Ok(address_lookup(AddressTypedDetails(address.postcode), None, countries, None, Some(List(NoPostCode())))))
-      } else {
-        AddressLookupService.findAddresses(address.postcode, address.nameNo) map {
-          case Right(addressList) =>
-            Ok(address_lookup(AddressTypedDetails(address.postcode, address.nameNo.getOrElse("")), None, countries, addressList, if (addressList.exists(_.isEmpty)) Some(List(NoMatchesFound())) else NoErrorMessage))
-          case Left(err) => err
-        }
-      }
-    }
-  }
-
-  def editButton(address:AddressData)(implicit request:Request[_]): Future[Result] =  {
-    if (address.id.nonEmpty) {
-      lookupAddr(address.id.get, address.postcode).map{ addr =>
-        Ok(address_lookup(AddressTypedDetails(address.postcode, address.nameNo.getOrElse("")), addr, countries, None, Some(List(AddManualEntry()))))
-      }
-    } else {
-      Future.successful(Ok(address_lookup(AddressTypedDetails(address.postcode, address.nameNo.getOrElse("")), None, countries, None, Some(List(AddManualEntry())))))
-    }
-  }
 }
 
 
 object AddressTypedDetails {
-  def empty = AddressTypedDetails("", "")
+  def empty: AddressTypedDetails = AddressTypedDetails("", "")
 }
 
 case class AddressTypedDetails(postcode: String, flatNumber: String = "", line1: String = "", line2: String = "", town: String = "", county: String = "")
@@ -150,4 +156,15 @@ case class AddManualEntry() extends AddressErrorMsg("Manual entry")
 
 case class InvalidPostcode() extends AddressErrorMsg("Invalid Postcode")
 
+case class BadlyFormatedPostcode() extends AddressErrorMsg("Badly formated Postcode")
 
+
+trait ExampleController {
+  this: Controller =>
+
+  def index(): Action[_] = Action {
+    Ok("ok")
+  }
+}
+
+object ExampleController extends Controller with ExampleController
