@@ -21,7 +21,7 @@ object FrontendBuild extends Build with MicroService {
   import scala.util.Properties.envOrElse
 
   val appName = "address-lookup-demo"
-  val appVersion = envOrElse("ADDRESS_LOOKUP_DEMO_FRONTEND_VERSION", "999-SNAPSHOT")
+//  val appVersion = envOrElse("ADDRESS_LOOKUP_DEMO_FRONTEND_VERSION", "999-SNAPSHOT")
 
   override lazy val appDependencies: Seq[ModuleID] = AppDependencies()
 }
