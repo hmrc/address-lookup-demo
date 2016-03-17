@@ -31,7 +31,7 @@ trait MicroService {
   import TestPhases._
 
   val appName: String
-  val appVersion: String
+//  val appVersion: String
 
   lazy val appDependencies : Seq[ModuleID] = ???
   lazy val plugins : Seq[Plugins] = Seq(play.PlayScala)
@@ -40,14 +40,14 @@ trait MicroService {
   lazy val microservice = Project(appName, file("."))
     .enablePlugins(plugins : _*)
     .settings(playSettings : _*)
-    .settings(version := appVersion)
+//    .settings(version := appVersion)
     .settings(scalaSettings: _*)
     .settings(scalaVersion := "2.11.7")
     .settings(publishingSettings: _*)
     .settings(defaultSettings(): _*)
     .settings(
       targetJvm := "jvm-1.8",
-      shellPrompt := ShellPrompt(appVersion),
+//      shellPrompt := ShellPrompt(appVersion),
       libraryDependencies ++= appDependencies,
       parallelExecution in Test := false,
       fork in Test := false,
