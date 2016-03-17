@@ -26,7 +26,7 @@ import play.api.mvc._
 import views.html.addresslookup._
 import scala.concurrent.Future
 
-object AddressLookup extends AddressLookupController  with AddressLookupService
+object AddressLookup extends AddressLookupController with AddressLookupService
 
 case class AddressData(nameNo: Option[String], postcode: String, hiddenselection: Option[String], noFixed: Option[String], id: Option[String], editedLine1: Option[String], editedLine2: Option[String], editedLine3: Option[String], editedTown: Option[String], editedCounty: Option[String])
 
@@ -57,15 +57,14 @@ trait AddressLookupController extends FrontendController {
   }
 
 
-
-  def lookupAddr(id: String, postcode:String): Future[Option[Address]] = {
+  def lookupAddr(id: String, postcode: String): Future[Option[Address]] = {
     case class AddressData(nameNo: Option[String], postcode: String, hiddenselection: Option[String], noFixed: Option[String], id: Option[String], editedLine1: Option[String])
 
-    findAddresses(postcode, None).map{
+    findAddresses(postcode, None).map {
       case Right(opAddrList) => opAddrList match {
         case Some(addrLst) =>
-          val matches = addrLst.filter( a => a.uprn == id)
-          if( matches.nonEmpty) matches.headOption else None
+          val matches = addrLst.filter(a => a.uprn == id)
+          if (matches.nonEmpty) matches.headOption else None
         case None => None
       }
       case Left(err) => None
@@ -83,11 +82,11 @@ trait AddressLookupController extends FrontendController {
   }
 
 
-  def continueButton(address:AddressData)(implicit request:Request[_]):Future[Result] = {
-    if (address.noFixed.contains("true")){
+  def continueButton(address: AddressData)(implicit request: Request[_]): Future[Result] = {
+    if (address.noFixed.contains("true")) {
       Future.successful(Ok(confirmationPage(AddressTypedDetails.empty, None, true)))
     } else if (address.id.nonEmpty) {
-      lookupAddr(address.id.get, address.postcode).map{ addr =>
+      lookupAddr(address.id.get, address.postcode).map { addr =>
         Ok(confirmationPage(AddressTypedDetails.empty, addr, false))
       }
     } else if (address.editedLine1.nonEmpty) {
@@ -106,9 +105,9 @@ trait AddressLookupController extends FrontendController {
     }
   }
 
-  def editButton(address:AddressData)(implicit request:Request[_]): Future[Result] =  {
+  def editButton(address: AddressData)(implicit request: Request[_]): Future[Result] = {
     if (address.id.nonEmpty) {
-      lookupAddr(address.id.get, address.postcode).map{ addr =>
+      lookupAddr(address.id.get, address.postcode).map { addr =>
         Ok(address_lookup(AddressTypedDetails.createFromInputAddress(address), addr, Countries.countries, None, Some(List(AddManualEntry()))))
       }
     } else {
@@ -153,15 +152,22 @@ object Countries {
 object AddressTypedDetails {
   def empty: AddressTypedDetails = AddressTypedDetails("", "", "", "", "", "", "")
 
-  def formatPostcode(pc:String):String = {
+  def formatPostcode(pc: String): String = {
     val upc = pc.toUpperCase
-    if (!upc.contains(" ")){
+    if (!upc.contains(" ")) {
       val (fst, sst) = upc.splitAt(upc.length - 3)
       fst + " " + sst
     } else upc
   }
 
-  def createFromInputAddress(addr:AddressData): AddressTypedDetails = AddressTypedDetails(formatPostcode(addr.postcode), addr.nameNo.getOrElse(""), addr.editedLine1.getOrElse(""), addr.editedLine2.getOrElse(""), addr.editedLine3.getOrElse(""), addr.editedTown.getOrElse(""), addr.editedCounty.getOrElse(""))
+  def createFromInputAddress(
+                              addr: AddressData): AddressTypedDetails = AddressTypedDetails(formatPostcode(addr.postcode),
+    addr.nameNo.getOrElse(""),
+    addr.editedLine1.getOrElse(""),
+    addr.editedLine2.getOrElse(""),
+    addr.editedLine3.getOrElse(""),
+    addr.editedTown.getOrElse(""),
+    addr.editedCounty.getOrElse(""))
 }
 
 case class AddressTypedDetails(postcode: String, flatNumber: String = "", line1: String = "", line2: String = "", line3: String = "", town: String = "", county: String = "")
@@ -188,3 +194,4 @@ trait ExampleController {
 }
 
 object ExampleController extends Controller with ExampleController
+
