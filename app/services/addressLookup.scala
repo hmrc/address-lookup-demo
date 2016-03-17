@@ -48,17 +48,17 @@ trait AddressLookupService extends AddressLookupWS {
       (JsPath \\ "lines").read[Array[String]] and
       (JsPath \\ "town").read[String] and
       (JsPath \\ "postcode").read[String]
-    )( Address.apply _ )
+    ) (Address.apply _)
 
 
-  def findAddresses(postcode:String, filter:Option[String]): Future[Either[Status, Option[List[Address]]]] = {
+  def findAddresses(postcode: String, filter: Option[String]): Future[Either[Status, Option[List[Address]]]] = {
     val query: Seq[(String, String)] = Seq(
-      ("postcode", postcode)) ++ filter.map( name =>  "filter" -> name )
+      ("postcode", postcode)) ++ filter.map(name => "filter" -> name)
 
-    WS.url(url).withHeaders("X-Hmrc-Origin" -> "addressLookupDemo").withQueryString(query : _*).get().map {
+    WS.url(url).withHeaders("X-Hmrc-Origin" -> "addressLookupDemo").withQueryString(query: _*).get().map {
       case response if response.status == OK =>
         response.json match {
-          case addrs:play.api.libs.json.JsArray =>
+          case addrs: play.api.libs.json.JsArray =>
             val addressList = Right(Some(addrs.value.map { i => i.as[Address] }.toList))
             addressList
           case err => Left(ServiceUnavailable)
@@ -72,15 +72,15 @@ trait AddressLookupService extends AddressLookupWS {
 }
 
 
-
-
 case class Address(uprn: String, lines: Array[String], town: String, postcode: String) {
-  def toAddrString:String = {
+  def toAddrString: String = {
     val lineStr = lines.mkString(" ")
     s"$lineStr $town $postcode"
   }
 
-  def line0 = if(lines.length < 1) "" else lines(0)
-  def line1 = if(lines.length < 2) "" else lines(1)
-  def line2 = if(lines.length < 3) "" else lines(2)
+  def line0 = if (lines.length < 1) "" else lines(0)
+
+  def line1 = if (lines.length < 2) "" else lines(1)
+
+  def line2 = if (lines.length < 3) "" else lines(2)
 }
