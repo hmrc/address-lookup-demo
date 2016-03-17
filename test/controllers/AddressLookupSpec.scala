@@ -17,7 +17,7 @@
 package controllers
 
 
-import play.api.mvc.Results.Status
+import play.api.mvc.Results._
 import services.AddressLookupWS
 
 import concurrent._
@@ -84,14 +84,14 @@ class AddressLookupSpec extends PlaySpec with Results with OneAppPerSuite {
       bodyText must include("Over 50 addresses found")
     }
 
-//    "A postcode with 'random' data will display an error message" in {
-//      val controller = new AddressLookupController with Data60ItemsWS
-//      val request = FakeRequest(GET, "/address-lookup-demo/address-lookup-selection?UK-postcode=nfjewkfb")
-//      val result = controller.addressLookupSelection().apply(request)
-//
-//      val bodyText: String = contentAsString(result)
-//      bodyText must include("The postcode was unrecognised")
-//    }
+    "A postcode with 'random' data will display an error message" in {
+      val controller = new AddressLookupController with DummyBadRequestWS
+      val request = FakeRequest(GET, "/address-lookup-demo/address-lookup-selection?house-name-number=&UK-postcode=nfjewk")
+      val result = controller.addressLookupSelection().apply(request)
+
+      val bodyText: String = contentAsString(result)
+      bodyText must include("The postcode was unrecognised")
+    }
 
     "check if 'continue' is selected we return edit fields" in {
       val controller = new AddressLookupController with DummyWS
@@ -150,3 +150,10 @@ trait Data60ItemsWS extends AddressLookupWS {
     })))
   }
 }
+
+trait DummyBadRequestWS extends AddressLookupWS {
+  def findAddresses(postcode: String, filter: Option[String]): Future[Either[Status, Option[List[services.Address]]]] = {
+    Future.successful(Left(BadRequest))
+  }
+}
+
