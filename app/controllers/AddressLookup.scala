@@ -99,8 +99,7 @@ trait AddressLookupController extends FrontendController {
         findAddresses(address.postcode, address.nameNo) map {
           case Right(addressList) =>
             Ok(address_lookup(AddressTypedDetails.createFromInputAddress(address), None, Countries.countries, addressList, if (addressList.exists(_.isEmpty)) Some(List(NoMatchesFound())) else NoErrorMessage))
-          case Left(play.api.mvc.Results.BadRequest) => Ok(address_lookup(AddressTypedDetails.empty.copy(postcode = address.postcode), None, Countries.countries, None, Some(List(BadlyFormatedPostcode()))))
-          case Left(_) => Ok(address_lookup(AddressTypedDetails(address.postcode), None, Countries.countries, None, Some(List(NoPostCode()))))
+          case Left(err) => err
         }
       }
     }
