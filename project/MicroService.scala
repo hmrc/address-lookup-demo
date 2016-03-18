@@ -65,6 +65,7 @@ trait MicroService {
     .settings(SbtBuildInfo(): _*)
     .disablePlugins(sbt.plugins.JUnitXmlReportPlugin)
     .settings(resolvers += Resolver.bintrayRepo("hmrc", "releases"))
+    .enablePlugins(SbtDistributablesPlugin, SbtGitVersioning)
 }
 
 private object TestPhases {
