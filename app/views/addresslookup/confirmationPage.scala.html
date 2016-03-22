@@ -1,4 +1,4 @@
-@(typedDetails: AddressTypedDetails, address:Option[services.Address], noFixedAddress:Boolean)(implicit request: Request[_])
+@(ukTypedDetails: AddressTypedDetails, intTypedDetails: Option[IntAddTypedDetails], address:Option[services.Address], noFixedAddress:Boolean)(implicit request: Request[_])
 
 <script src="assets/javascripts/vendor/jquery-1.11.0.min.js"></script>
 <script src="assets/javascripts/selection-buttons.js"></script>
@@ -43,15 +43,24 @@
                     <p>@address.get.town</p>
                     <p>@address.get.postcode</p>
                 } else {
-                    @if(typedDetails.line1.nonEmpty) {
-                        <p>@typedDetails.line1</p>
-                        <p>@typedDetails.line2</p>
-                        <p>@typedDetails.line3</p>
-                        <p>@typedDetails.town</p>
-                        <p>@typedDetails.county</p>
-                        <p>@typedDetails.postcode</p>
+                    @if(ukTypedDetails.line1.nonEmpty) {
+                        <p>@ukTypedDetails.line1</p>
+                        <p>@ukTypedDetails.line2</p>
+                        <p>@ukTypedDetails.line3</p>
+                        <p>@ukTypedDetails.town</p>
+                        <p>@ukTypedDetails.county</p>
+                        <p>@ukTypedDetails.postcode</p>
                     } else {
-                        ERROR: Unable to find address details
+                        @for(addr <- intTypedDetails ) {
+                            @if(addr.country.nonEmpty) {
+                                @for( line <- addr.address ) {
+                                    <p>@line</p>
+                                }
+                               <p>Country: @addr.country</p>
+                            } else {
+                                ERROR: Unable to find address details
+                            }
+                        }
                     }
                 }
             }

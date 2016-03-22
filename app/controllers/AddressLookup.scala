@@ -30,6 +30,8 @@ object AddressLookup extends AddressLookupController  with AddressLookupService
 
 case class AddressData(nameNo: Option[String], postcode: String, hiddenselection: Option[String], noFixed: Option[String], id: Option[String], editedLine1: Option[String], editedLine2: Option[String], editedLine3: Option[String], editedTown: Option[String], editedCounty: Option[String])
 
+case class IntAddData(country: Option[String], address: Option[String])
+
 trait AddressLookupController extends FrontendController {
   this: AddressLookupWS =>
 
@@ -39,6 +41,21 @@ trait AddressLookupController extends FrontendController {
 
   val addressLookup: Action[AnyContent] = Action.async { implicit request =>
     Future.successful(Ok(address_lookup(AddressTypedDetails.empty, None, Countries.countries, None, NoErrorMessage)))
+  }
+
+  val intAddForm = Form[IntAddData] {
+    mapping("int-country" -> optional(text),
+    "int-address" -> optional(text)
+    )(IntAddData.apply)(IntAddData.unapply)
+  }
+
+  val intContinueButton: Action[AnyContent] = Action.async { implicit request =>
+    intAddForm.bindFromRequest().fold(
+      formWithErrors => Future.successful(BadRequest),
+      address => {
+        Future.successful(Ok(confirmationPage(AddressTypedDetails.empty, Some(IntAddTypedDetails.createInputIntAddress(address)), None, false)))
+        }
+    )
   }
 
 
@@ -85,13 +102,13 @@ trait AddressLookupController extends FrontendController {
 
   def continueButton(address:AddressData)(implicit request:Request[_]):Future[Result] = {
     if (address.noFixed.contains("true")){
-      Future.successful(Ok(confirmationPage(AddressTypedDetails.empty, None, true)))
+      Future.successful(Ok(confirmationPage(AddressTypedDetails.empty, None, None, true)))
     } else if (address.id.nonEmpty) {
       lookupAddr(address.id.get, address.postcode).map{ addr =>
-        Ok(confirmationPage(AddressTypedDetails.empty, addr, false))
+        Ok(confirmationPage(AddressTypedDetails.empty, None, addr, false))
       }
     } else if (address.editedLine1.nonEmpty) {
-      Future.successful(Ok(confirmationPage(AddressTypedDetails.createFromInputAddress(address), None, false)))
+      Future.successful(Ok(confirmationPage(AddressTypedDetails.createFromInputAddress(address), None, None, false)))
     } else {
       if (address.postcode == "") {
         Future.successful(Ok(address_lookup(AddressTypedDetails.empty, None, Countries.countries, None, Some(List(NoPostCode())))))
@@ -162,6 +179,14 @@ object AddressTypedDetails {
 
   def createFromInputAddress(addr:AddressData): AddressTypedDetails = AddressTypedDetails(formatPostcode(addr.postcode), addr.nameNo.getOrElse(""), addr.editedLine1.getOrElse(""), addr.editedLine2.getOrElse(""), addr.editedLine3.getOrElse(""), addr.editedTown.getOrElse(""), addr.editedCounty.getOrElse(""))
 }
+
+object IntAddTypedDetails {
+  def empty: IntAddTypedDetails = IntAddTypedDetails("", List.empty[String])
+
+  def createInputIntAddress(addr:IntAddData): IntAddTypedDetails = IntAddTypedDetails(addr.country.getOrElse(""), addr.address.getOrElse("").split("\n").toList)
+}
+
+case class IntAddTypedDetails(country: String = "", address: List[String] = List.empty[String])
 
 case class AddressTypedDetails(postcode: String, flatNumber: String = "", line1: String = "", line2: String = "", line3: String = "", town: String = "", county: String = "")
 

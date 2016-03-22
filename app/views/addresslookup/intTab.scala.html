@@ -1,11 +1,11 @@
 @(countries:List[String])(implicit request: Request[_])
 
 
-  <form action="address-lookup-init-form" method="get">
+  <form action="address-lookup-int-selection" method="get" id="intForm">
 
   <div class="form-group">
     <label class="form-label-bold" for="int-country">Country</label>
-    <select class="form-control" id="int-country">
+    <select class="form-control" id="int-country" name="int-country">
       @for(country <- countries) {
         <option>@country</option>
       }
@@ -14,11 +14,11 @@
 
   <div class="form-group">
     <label class="form-label-bold" for="int-address">Address</label>
-    <textarea class="form-control" rows="5" id="int-address"></textarea>
+    <textarea class="form-control" rows="5" id="int-address" name="int-address"></textarea>
   </div>
 
   <div class="form-group">
-    <input class="button" type="submit" value="Continue" disabled>
+    <input class="button" type="submit" value="Continue">
   </div>
 
     </form>
