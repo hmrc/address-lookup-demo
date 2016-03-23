@@ -1,24 +1,35 @@
-@(countries:List[String])(implicit request: Request[_])
+@(countries:List[String], errorMessage: Option[List[AddressErrorMsg]] = None)(implicit request: Request[_])
 
 
   <form action="address-lookup-int-selection" method="get" id="intForm">
 
-  <div class="form-group">
-    <label class="form-label-bold" for="int-country">Country</label>
-    <select class="form-control" id="int-country" name="int-country">
-      @for(country <- countries) {
-        <option>@country</option>
-      }
-    </select>
-  </div>
+    <div class="form-group">
+      <label class="form-label-bold" for="int-country">Country</label>
+      <select class="form-control" id="int-country" name="int-country">
+        @for(country <- countries) {
+          <option>@country</option>
+        }
+      </select>
+    </div>
 
-  <div class="form-group">
-    <label class="form-label-bold" for="int-address">Address</label>
-    <textarea class="form-control" rows="5" id="int-address" name="int-address"></textarea>
-  </div>
+    @if(errorMessage.exists( f => f.contains(BlankIntAddress() ))) {
+      <div class="form-group error">
+        <label for="error-int-address">
+          <span class="form-label-bold">Address</span>
+          <span class="form-hint">An address is required</span>
+          <span class="error-message" id="error-message-postcode">Address was left blank</span>
+        </label>
+        <textarea class="form-control" rows="5" id="error-int-address" name="error-int-address"></textarea>
+      </div>
+    } else {
+      <div class="form-group">
+        <label class="form-label-bold" for="int-address">Address</label>
+        <textarea class="form-control" rows="5" id="int-address" name="int-address"></textarea>
+      </div>
+    }
 
-  <div class="form-group">
-    <input class="button" type="submit" value="Continue">
-  </div>
+    <div class="form-group">
+      <input class="button" type="submit" value="Continue">
+    </div>
 
     </form>
