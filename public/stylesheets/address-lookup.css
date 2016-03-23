@@ -1,0 +1,30 @@
+#INT-Tab {
+    display: none;
+}
+
+#BFPO-Tab {
+    display: none;
+}
+
+.govuk-box-highlight {
+    margin: 1em 0 1em 0;
+    padding: 2em 0 1em 0;
+    color: #fff;
+    background: #28a197;
+    text-align: center;
+    background: #28a197;
+}
+
+.govuk-box-highlight h2{
+    color: #fff;
+}
+
+#hiddenselection {
+    visibility: hidden;
+}
+
+.warning-box {
+    background: #FFBF47;
+    padding: 15px;
+}
+

@@ -4,6 +4,7 @@
 <script src="assets/javascripts/selection-buttons.js"></script>
 <script src="assets/javascripts/redirect.js"></script>
 <script src="assets/javascripts/application.js"></script>
+<link href="assets/stylesheets/address-lookup.css" rel="stylesheet" type="text/css">
 
 <div class="phase-banner-alpha">
     <p>
@@ -24,31 +25,31 @@
         <label class="form-label-bold" for="location">Choose your location</label>
     <fieldset class="inline">
         <div class="form-group" id="location">
-            <label class="block-label" data-target="example-UK" for="location-UK">
-                <input id="location-UK" type="radio" name="radio-inline-group" value="UK" checked="checked" focus>
+            <label class="block-label" data-target="UK-Tab" for="location-UK">
+                <input id="location-UK" type="radio" name="radio-inline-group" value="UK" checked="checked">
                 United Kingdom
             </label>
 
-            <label class="block-label" data-target="example-INT" for="location-international">
+            <label class="block-label" data-target="INT-Tab" for="location-international">
                 <input id="location-international" type="radio" name="radio-inline-group" value="INT">
                 International
             </label>
 
-            <label class="block-label" data-target="example-BFPO" for="location-BFPO">
+            <label class="block-label" data-target="BFPO-Tab" for="location-BFPO">
                 <input id="location-BFPO" type="radio" name="radio-inline-group" value="BFPO">
                 BFPO
             </label>
         </div>
 
-        <div class="panel panel-border-narrow" id="example-UK">
+        <div class="panel panel-border-narrow" id="UK-Tab">
             @ukTab(typedDetails, addressList, address, errorMessage)
         </div>
 
-        <div class="panel panel-border-narrow" id="example-INT" style="display: none;">
+        <div class="panel panel-border-narrow" id="INT-Tab">
             @intTab(countries, errorMessage)
         </div>
 
-        <div class="panel panel-border-narrow" id="example-BFPO" style="display: none;">
+        <div class="panel panel-border-narrow" id="BFPO-Tab">
             @bfpoTab()
         </div>
 

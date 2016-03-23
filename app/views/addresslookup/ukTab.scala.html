@@ -2,45 +2,34 @@
 
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script>
 <script src="http://malsup.github.com/jquery.form.js"></script>
+<script src="assets/javascripts/address-lookup.js"></script>
+<link href="assets/stylesheets/address-lookup.css" rel="stylesheet" type="text/css">
 
-<script>
-        $(document).ready(function() {
-        $("#myForm").find("#hiddenselection").prop('checked', false);
-            $('#editAddress').click(function(){
-                $("#myForm").find("#hiddenselection").prop('checked', true);
-                $("#myForm").submit();
-                return false;
-            });
-        });
-</script>
+<form action="address-lookup-selection" method="get" id="myForm">
 
+    <input type="checkbox" name="hiddenselection" id="hiddenselection" value="hiddenselection">
 
-    <form action="address-lookup-selection" method="get" id="myForm">
-
-        <input type="checkbox" name="hiddenselection" id="hiddenselection" value="hiddenselection" hidden>
-
-        @for( addrX <- addressList) {
-            @if(addrX.length > maxAddresses) {
-                <div class="form-group">
-                    <div style="background: #FFBF47 ; padding: 15px">
-                        <h2>Over @maxAddresses addresses found</h2>
-                        <p>Please enter a house name or number.</p>
-                    </div>
-                </div>
-            }
-        }
-
-        @if(errorMessage.exists( f => f.contains(NoMatchesFound() ))) {
+    @for( addrX <- addressList) {
+        @if(addrX.length > maxAddresses) {
             <div class="form-group">
-                <div style="background: #FFBF47 ; padding: 15px">
-                    <h2>No addresses found for given Post code</h2>
-                    <p>Please enter a postcode or select 'edit this address'.</p>
+                <div class="warning-box">
+                    <h2>Over @maxAddresses addresses found</h2>
+                    <p>Please enter a house name or number.</p>
                 </div>
             </div>
         }
+    }
 
+    @if(errorMessage.exists( _.contains(NoMatchesFound() ))) {
+        <div class="form-group">
+            <div class="warning-box">
+                <h2>No addresses found for given Post code</h2>
+                <p>Please enter a postcode or select 'edit this address'.</p>
+            </div>
+        </div>
+    }
 
-            <div class="form-group">
+    <div class="form-group">
         <label class="form-label-bold" for="house-name-number">House name or number</label>
         <input class="form-control" id="house-name-number" name="house-name-number" type="text" value='@{
             typedDetails.flatNumber
@@ -51,94 +40,92 @@
         </label>
     </div>
 
-        @if(errorMessage.exists( f => f.contains(NoPostCode() ))) {
-            <div class="form-group error">
+    @if(errorMessage.exists( _.contains(NoPostCode() ))) {
+        <div class="form-group error">
+            <label for="error-UK-postcode-blank">
+                <span class="form-label-bold">Post code</span>
+                <span class="form-hint">A post code is required</span>
+                <span class="error-message" id="error-message-postcode-blank">Post code was left blank</span>
+            </label>
+            <input class="form-control" id="error-UK-postcode-blank" type="text" name="UK-postcode" value="" aria-describedby="error-message-postcode">
+        </div>
 
-                <label for="error-UK-postcode">
+    } else {
+
+        @if(errorMessage.exists( _.contains(BadlyFormatedPostcode() ))) {
+            <div class="form-group error">
+                <label for="error-UK-postcode-unrecognised">
                     <span class="form-label-bold">Post code</span>
-                    <span class="form-hint">A post code is required</span>
-                    <span class="error-message" id="error-message-postcode">Post code was left blank</span>
+                    <span class="form-hint">The postcode was unrecognised</span>
+                    <span class="error-message" id="error-message-postcode-unrecognised">The postcode was unrecognised</span>
                 </label>
-                <input class="form-control" id="error-UK-postcode" type="text" name="UK-postcode" value="" aria-describedby="error-message-postcode">
+                <input class="form-control" id="error-UK-postcode-unrecognised" type="text" name="UK-postcode" value='@{typedDetails.postcode}' aria-describedby="error-message-postcode">
             </div>
 
         } else {
 
-            @if(errorMessage.exists( f => f.contains(BadlyFormatedPostcode() ))) {
-                <div class="form-group error">
-
-                    <label for="error-UK-postcode">
-                        <span class="form-label-bold">Post code</span>
-                        <span class="form-hint">The postcode was unrecognised</span>
-                        <span class="error-message" id="error-message-postcode">The postcode was unrecognised</span>
-                    </label>
-                    <input class="form-control" id="error-UK-postcode" type="text" name="UK-postcode" value='@{typedDetails.postcode}' aria-describedby="error-message-postcode">
-                </div>
-
-            } else {
-
-                <div class="form-group">
-                    <label class="form-label-bold" for="UK-postcode">Post code</label>
-                    <input class="form-control" id="UK-postcode" name="UK-postcode" type="text" maxlength="8" value='@{typedDetails.postcode}'>
-                </div>
-            }
+            <div class="form-group">
+                <label class="form-label-bold" for="UK-postcode">Post code</label>
+                <input class="form-control" id="UK-postcode" name="UK-postcode" type="text" maxlength="8" value='@{typedDetails.postcode}'>
+            </div>
         }
+    }
 
 
-        @for( addrX <- addressList) {
-            @if(addrX.length <= maxAddresses && !errorMessage.exists( f => f.contains(NoMatchesFound() ))) {
-                <div class="form-group">
-                    <label class="form-label-bold" for="Address-table">Found addresses</label>
-                    <table id="Address-table">
-                        <tbody>
-                        @for( addr <- addrX) {
-                            <tr>
-                                <td class="selection"><input id='@{
-                                    addr.uprn
-                                }' type="radio" name="radio-inline-group" value='@{
-                                    addr.uprn
-                                }'>
-                                </td>
-                                <td><label for='@{
-                                    addr.uprn
-                                }'>@{
-                                    addr.toAddrString
-                                }</label>
-                                </td>
-                            </tr>
-                        }
-                        </tbody>
-                    </table>
-                </div>
-            }
+    @for( addrX <- addressList) {
+        @if(addrX.length <= maxAddresses && !errorMessage.exists( _.contains(NoMatchesFound() ))) {
+            <div class="form-group">
+                <label class="form-label-bold" for="Address-table">Found addresses</label>
+                <table id="Address-table">
+                    <tbody>
+                    @for( addr <- addrX) {
+                        <tr>
+                            <td class="selection"><input id='@{
+                                addr.uprn
+                            }' type="radio" name="radio-inline-group" value='@{
+                                addr.uprn
+                            }'>
+                            </td>
+                            <td><label for='@{
+                                addr.uprn
+                            }'>@{
+                                addr.toAddrString
+                            }</label>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
         }
+    }
 
-        @if(errorMessage.exists( f => f.contains(AddManualEntry() ))) {
-            @if( address.nonEmpty) {
-                <div class="form-group">
-                    <h2>Amend address</h2>
-                    <label class="form-label" for='UK-address-line1'>Address line 1</label>
-                    <input class="form-control" id='UK-address-line1' name="UK-address-line1" type="text" value='@{address.get.line0}'>
-                    <label class="form-label" for='UK-address-line2'>Address line 2</label>
-                    <input class="form-control" id='UK-address-line2' name="UK-address-line2" type="text" value='@{address.get.line1}'>
-                    <label class="form-label" for='UK-address-line3'>Address line 3</label>
-                    <input class="form-control" id='UK-address-line3' name="UK-address-line3" type="text" value='@{address.get.line2}'>
-                    <label class="form-label" for="UK-address-town">Nearest town or city</label>
-                    <input class="form-control" id="UK-address-town" name="UK-town" type="text" value='@address.get.town'>
-                    <label class="form-label" for="UK-address-county">County</label>
-                    <input class="form-control" id="UK-address-county" name="UK-county" type="text">
-                </div>
-            }
+    @if(errorMessage.exists( _.contains(AddManualEntry() ))) {
+        @if( address.nonEmpty) {
+            <div class="form-group">
+                <h2>Amend address</h2>
+                <label class="form-label" for='UK-address-line1'>Address line 1</label>
+                <input class="form-control" id='UK-address-line1' name="UK-address-line1" type="text" value='@{address.get.line0}'>
+                <label class="form-label" for='UK-address-line2'>Address line 2</label>
+                <input class="form-control" id='UK-address-line2' name="UK-address-line2" type="text" value='@{address.get.line1}'>
+                <label class="form-label" for='UK-address-line3'>Address line 3</label>
+                <input class="form-control" id='UK-address-line3' name="UK-address-line3" type="text" value='@{address.get.line2}'>
+                <label class="form-label" for="UK-address-town">Nearest town or city</label>
+                <input class="form-control" id="UK-address-town" name="UK-town" type="text" value='@address.get.town'>
+                <label class="form-label" for="UK-address-county">County</label>
+                <input class="form-control" id="UK-address-county" name="UK-county" type="text">
+            </div>
         }
+    }
 
-        <div class="form-group">
-            <input class="button" type="submit"  value="Continue">
-            @if(addressList.nonEmpty && addressList.getOrElse(List.empty[services.Address]).size <= maxAddresses ){
-                <span>or <a href="#"  id="editAddress"> edit this address</a></span>
-            }
-        </div>
+    <div class="form-group">
+        <input class="button" type="submit"  value="Continue">
+        @if(addressList.nonEmpty && addressList.getOrElse(List.empty[services.Address]).size <= maxAddresses ){
+            <span>or <a href="#"  id="editAddress"> edit this address</a></span>
+        }
+    </div>
 
-    </form>
+</form>
 
 
 
