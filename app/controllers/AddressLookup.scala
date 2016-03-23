@@ -26,7 +26,7 @@ import play.api.mvc._
 import views.html.addresslookup._
 import scala.concurrent.Future
 
-object AddressLookup extends AddressLookupController  with AddressLookupService
+object AddressLookup extends AddressLookupController with AddressLookupService
 
 case class AddressData(nameNo: Option[String], postcode: String, hiddenselection: Option[String], noFixed: Option[String], id: Option[String], editedLine1: Option[String], editedLine2: Option[String], editedLine3: Option[String], editedTown: Option[String], editedCounty: Option[String])
 
@@ -74,15 +74,14 @@ trait AddressLookupController extends FrontendController {
   }
 
 
-
-  def lookupAddr(id: String, postcode:String): Future[Option[Address]] = {
+  def lookupAddr(id: String, postcode: String): Future[Option[Address]] = {
     case class AddressData(nameNo: Option[String], postcode: String, hiddenselection: Option[String], noFixed: Option[String], id: Option[String], editedLine1: Option[String])
 
-    findAddresses(postcode, None).map{
+    findAddresses(postcode, None).map {
       case Right(opAddrList) => opAddrList match {
         case Some(addrLst) =>
-          val matches = addrLst.filter( a => a.uprn == id)
-          if( matches.nonEmpty) matches.headOption else None
+          val matches = addrLst.filter(a => a.uprn == id)
+          if (matches.nonEmpty) matches.headOption else None
         case None => None
       }
       case Left(err) => None
@@ -116,15 +115,16 @@ trait AddressLookupController extends FrontendController {
         findAddresses(address.postcode, address.nameNo) map {
           case Right(addressList) =>
             Ok(address_lookup(AddressTypedDetails.createFromInputAddress(address), None, Countries.countries, addressList, if (addressList.exists(_.isEmpty)) Some(List(NoMatchesFound())) else NoErrorMessage))
-          case Left(err) => err
+          case Left(play.api.mvc.Results.BadRequest) => Ok(address_lookup(AddressTypedDetails.empty.copy(postcode = address.postcode), None, Countries.countries, None, Some(List(BadlyFormatedPostcode()))))
+          case Left(_) => Ok(address_lookup(AddressTypedDetails(address.postcode), None, Countries.countries, None, Some(List(NoPostCode()))))
         }
       }
     }
   }
 
-  def editButton(address:AddressData)(implicit request:Request[_]): Future[Result] =  {
+  def editButton(address: AddressData)(implicit request: Request[_]): Future[Result] = {
     if (address.id.nonEmpty) {
-      lookupAddr(address.id.get, address.postcode).map{ addr =>
+      lookupAddr(address.id.get, address.postcode).map { addr =>
         Ok(address_lookup(AddressTypedDetails.createFromInputAddress(address), addr, Countries.countries, None, Some(List(AddManualEntry()))))
       }
     } else {
@@ -169,15 +169,22 @@ object Countries {
 object AddressTypedDetails {
   def empty: AddressTypedDetails = AddressTypedDetails("", "", "", "", "", "", "")
 
-  def formatPostcode(pc:String):String = {
+  def formatPostcode(pc: String): String = {
     val upc = pc.toUpperCase
-    if (!upc.contains(" ")){
+    if (!upc.contains(" ")) {
       val (fst, sst) = upc.splitAt(upc.length - 3)
       fst + " " + sst
     } else upc
   }
 
-  def createFromInputAddress(addr:AddressData): AddressTypedDetails = AddressTypedDetails(formatPostcode(addr.postcode), addr.nameNo.getOrElse(""), addr.editedLine1.getOrElse(""), addr.editedLine2.getOrElse(""), addr.editedLine3.getOrElse(""), addr.editedTown.getOrElse(""), addr.editedCounty.getOrElse(""))
+  def createFromInputAddress(
+                              addr: AddressData): AddressTypedDetails = AddressTypedDetails(formatPostcode(addr.postcode),
+    addr.nameNo.getOrElse(""),
+    addr.editedLine1.getOrElse(""),
+    addr.editedLine2.getOrElse(""),
+    addr.editedLine3.getOrElse(""),
+    addr.editedTown.getOrElse(""),
+    addr.editedCounty.getOrElse(""))
 }
 
 object IntAddTypedDetails {
@@ -212,3 +219,4 @@ trait ExampleController {
 }
 
 object ExampleController extends Controller with ExampleController
+
