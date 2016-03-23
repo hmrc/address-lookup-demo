@@ -40,7 +40,7 @@ trait AddressLookupService extends AddressLookupWS {
 
   val conf = ConfigFactory.load()
   val lookupServer = conf.getString("address-lookup-server")
-  val url = s"https://$lookupServer/address-lookup/v1/uk/addresses.json"
+  val url = s"http://$lookupServer/address-lookup/v1/uk/addresses.json"
 
 
   implicit val addrReader: Reads[Address] = (
