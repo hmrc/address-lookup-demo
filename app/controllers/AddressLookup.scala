@@ -53,7 +53,12 @@ trait AddressLookupController extends FrontendController {
     intAddForm.bindFromRequest().fold(
       formWithErrors => Future.successful(BadRequest),
       address => {
-        Future.successful(Ok(confirmationPage(AddressTypedDetails.empty, Some(IntAddTypedDetails.createInputIntAddress(address)), None, false)))
+        if(address.address.isEmpty || address.address.contains("")) {
+          Future.successful(Ok(address_lookup(AddressTypedDetails.empty, None, Countries.countries, None, Some(List(BlankIntAddress())) )))
+
+        } else {
+          Future.successful(Ok(confirmationPage(AddressTypedDetails.empty, Some(IntAddTypedDetails.createInputIntAddress(address)), None, false)))
+        }
         }
     )
   }
@@ -200,6 +205,8 @@ case class AddressTypedDetails(postcode: String, flatNumber: String = "", line1:
 sealed abstract class AddressErrorMsg(msg: String)
 
 case class NoPostCode() extends AddressErrorMsg("NO Postcode")
+
+case class BlankIntAddress() extends AddressErrorMsg("Blank international address")
 
 case class NoMatchesFound() extends AddressErrorMsg("No addresses found")
 

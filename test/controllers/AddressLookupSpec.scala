@@ -124,6 +124,21 @@ class AddressLookupSpec extends PlaySpec with Results with OneAppPerSuite {
       bodyText must include("Application complete")
     }
   }
+
+  "international completion page" should {
+    "be displayed when we press continue" in {
+      val controller = new AddressLookupController with DummyWS
+      val request = FakeRequest(GET,
+        "http://localhost:9000/address-lookup-demo/address-lookup-int-selection?int-country=Cuba&int-address=AAA"
+      )
+      val result: Future[Result] = controller.intContinueButton().apply(request)
+
+      val bodyText: String = contentAsString(result)
+      bodyText must include("Application complete")
+      bodyText must include("AAA")
+      bodyText must include("Country: Cuba")
+    }
+  }
 }
 
 
