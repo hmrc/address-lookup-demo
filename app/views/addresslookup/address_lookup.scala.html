@@ -1,4 +1,4 @@
-@(typedDetails: AddressTypedDetails, address:Option[services.Address], countries: List[String], addressList: Option[List[services.Address]], errorMessage: Option[List[AddressErrorMsg]] = None)(implicit request: Request[_])
+@(typedDetails: AddressTypedDetails, address:Option[services.Address], bfpoTypedDetails: Option[BFPOAddTypedDetails], countries: List[String], addressList: Option[List[services.Address]], errorMessage: Option[List[AddressErrorMsg]] = None)(implicit request: Request[_])
 
 <script src="assets/javascripts/vendor/jquery-1.11.0.min.js"></script>
 <script src="assets/javascripts/selection-buttons.js"></script>
@@ -50,7 +50,7 @@
         </div>
 
         <div class="panel panel-border-narrow" id="BFPO-Tab">
-            @bfpoTab()
+            @bfpoTab(bfpoTypedDetails, errorMessage)
         </div>
 
 

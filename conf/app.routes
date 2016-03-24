@@ -6,6 +6,7 @@ GET        /hello-world                       controllers.HelloWorld.helloWorld
 GET        /address-lookup                    controllers.AddressLookup.addressLookup
 GET        /address-lookup-selection          controllers.AddressLookup.addressLookupSelection
 GET        /address-lookup-int-selection      controllers.AddressLookup.intContinueButton
+GET        /address-lookup-bfpo-selection     controllers.AddressLookup.bfpoContinueButton
 
 GET        /assets/*file                      controllers.Assets.at(path="/public", file)
 
