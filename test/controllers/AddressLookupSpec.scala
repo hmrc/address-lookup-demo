@@ -18,14 +18,12 @@ package controllers
 
 
 import play.api.mvc.Results._
-import services.AddressLookupWS
+import services.{AddressLookupWS, Bfpo, BfpoLookupWS}
 
 import concurrent._
 import play.api.mvc._
 import play.api.test._
 import org.scalatestplus.play._
-
-
 import play.api.test.Helpers._
 
 class AddressLookupSpec extends PlaySpec with Results with OneAppPerSuite {
@@ -37,7 +35,7 @@ class AddressLookupSpec extends PlaySpec with Results with OneAppPerSuite {
 
     "check address template" in {
       // new WithApplication
-      val html = views.html.addresslookup.address_lookup(AddressTypedDetails(""), None, Countries.countries, None, None)(FakeRequest())
+      val html = views.html.addresslookup.address_lookup(AddressTypedDetails(""), None, None, Countries.countries, None, None)(FakeRequest())
       contentAsString(html) must include("Your Address")
     }
 
@@ -142,13 +140,13 @@ class AddressLookupSpec extends PlaySpec with Results with OneAppPerSuite {
 }
 
 
-trait DummyWS extends AddressLookupWS {
+trait DummyWS extends AddressLookupWS with DummyBfpoWS {
   def findAddresses(postcode: String, filter: Option[String]): Future[Either[Status, Option[List[services.Address]]]] = {
     Future.successful(Right(Some(List[services.Address]())))
   }
 }
 
-trait DataWS extends AddressLookupWS {
+trait DataWS extends AddressLookupWS with DummyBfpoWS {
   def findAddresses(postcode: String, filter: Option[String]): Future[Either[Status, Option[List[services.Address]]]] = {
     Future.successful(Right(Some(List[services.Address](
       services.Address("GB00001", Array[String](""), "ATown", "AA1AA1")
@@ -156,7 +154,7 @@ trait DataWS extends AddressLookupWS {
   }
 }
 
-trait Data60ItemsWS extends AddressLookupWS {
+trait Data60ItemsWS extends AddressLookupWS with DummyBfpoWS {
   val ListSize = 60
 
   def findAddresses(postcode: String, filter: Option[String]): Future[Either[Status, Option[List[services.Address]]]] = {
@@ -166,9 +164,15 @@ trait Data60ItemsWS extends AddressLookupWS {
   }
 }
 
-trait DummyBadRequestWS extends AddressLookupWS {
+trait DummyBadRequestWS extends AddressLookupWS with DummyBfpoWS {
   def findAddresses(postcode: String, filter: Option[String]): Future[Either[Status, Option[List[services.Address]]]] = {
     Future.successful(Left(BadRequest))
   }
 }
 
+
+
+trait DummyBfpoWS  extends BfpoLookupWS {
+  def findBfpo(postcode: String): Future[Either[Status, Option[List[Bfpo]]]] = ???
+
+}
