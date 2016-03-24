@@ -29,38 +29,37 @@ import play.api.libs.functional.syntax._
 import scala.concurrent.Future
 
 
-trait AddressLookupWS {
-  def findAddresses(postcode: String, filter: Option[String]): Future[Either[Status, Option[List[Address]]]]
+trait BfpoLookupWS {
+  def findBfpo(postcode: String): Future[Either[Status, Option[List[Bfpo]]]]
 }
 
-trait AddressLookupService extends AddressLookupWS {
+trait BfpoLookupService extends BfpoLookupWS {
 
   import play.api.Play.current
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  val conf = ConfigFactory.load()
-  val lookupServer = conf.getString("address-lookup-server")
+  val conf1 = ConfigFactory.load()
+  val lookupServer1 = conf1.getString("address-lookup-server")
  // val url = s"http://$lookupServer/address-lookup/v1/uk/addresses.json"
- val url = s"http://$lookupServer/uk/addresses"
+ val url1 = s"http://$lookupServer1/bfpo/addresses"
 
-  implicit val addrReader: Reads[Address] = (
-    (JsPath \\ "id").read[String] and
-      (JsPath \\ "lines").read[Array[String]] and
-      (JsPath \\ "town").read[String] and
+  implicit val bfpoReader: Reads[Bfpo] = (
+    (JsPath \\ "opName").read[String] and
+      (JsPath \\ "bfpoNo").read[String] and
       (JsPath \\ "postcode").read[String]
-    ) (Address.apply _)
+    ) (Bfpo.apply _)
 
 
-  def findAddresses(postcode: String, filter: Option[String]): Future[Either[Status, Option[List[Address]]]] = {
+  def findBfpo(postcode: String): Future[Either[Status, Option[List[Bfpo]]]] = {
     val query: Seq[(String, String)] = Seq(
-      ("postcode", postcode)) ++ filter.map(name => "filter" -> name)
+      ("postcode", postcode))
 
-    WS.url(url).withHeaders("X-Hmrc-Origin" -> "addressLookupDemo").withQueryString(query: _*).get().map {
+    WS.url(url1).withHeaders("User-Agent" -> "addressLookupDemo").withQueryString(query: _*).get().map {
       case response if response.status == OK =>
         response.json match {
-          case addrs: play.api.libs.json.JsArray =>
-            val addressList = Right(Some(addrs.value.map { i => i.as[Address] }.toList))
-            addressList
+          case bfpos: play.api.libs.json.JsArray =>
+            val bfpoList = Right(Some(bfpos.value.map { i => i.as[Bfpo] }.toList))
+            bfpoList
           case err => Left(ServiceUnavailable)
         }
       case response if response.status == BAD_REQUEST =>
@@ -72,15 +71,8 @@ trait AddressLookupService extends AddressLookupWS {
 }
 
 
-case class Address(uprn: String, lines: Array[String], town: String, postcode: String) {
-  def toAddrString: String = {
-    val lineStr = lines.mkString(" ")
-    s"$lineStr $town $postcode"
+case class Bfpo(opName: String, bfpoNo:String, postcode: String) {
+  def toBfpoString: String = {
+    s"$opName $bfpoNo $postcode"
   }
-
-  def line0 = if (lines.length < 1) "" else lines(0)
-
-  def line1 = if (lines.length < 2) "" else lines(1)
-
-  def line2 = if (lines.length < 3) "" else lines(2)
 }

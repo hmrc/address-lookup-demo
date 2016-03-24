@@ -1,45 +1,65 @@
-@()(implicit request: Request[_])
+@(bfpoTypedDetails: Option[BFPOAddTypedDetails], errorMessage: Option[List[AddressErrorMsg]] = None)(implicit request: Request[_])
 
 
-  <form action="address-lookup-bfpo-form" method="get">
+<form action="address-lookup-bfpo-selection" method="get">
 
-    <div class="form-group">
-      <label class="form-label-bold" for="BFPO-postcode">BFPO post code</label>
-      <input class="form-control" id="BFPO-postcode" type="text">
+  @if(errorMessage.exists( f => f.contains(BlankBFPOPostcode() ))) {
+    <div class="form-group error">
+      <label for="error-BFPO-postcode-label">
+        <span class="form-label-bold">BFPO post code</span>
+        <span class="form-hint">A valid post code is required</span>
+        <span class="error-message" id="error-BFPO-postcode-label">Post code was left blank</span>
+      </label>
+      <input class="form-control" id="error-BFPO-postcode" name="BFPO-postcode" type="text" maxlength="8">
     </div>
+  } else {
+    @if(bfpoTypedDetails.nonEmpty) {
+      @for(bfpo <- bfpoTypedDetails) {
+        <div class="form-group">
+          <label class="form-label-bold" for="BFPO-typed-postcode">BFPO post code</label>
+          <input class="form-control" id="BFPO-typed-postcode" name="BFPO-typed-postcode" type="text" value='@{bfpo.postcode}'>
+        </div>
 
-    <div class="form-group">
-      <label class="form-label-bold" for="BFPO-number">BFPO number</label>
-      <input class="form-control" id="BFPO-number" type="text">
-    </div>
+        <div class="form-group">
+          <label class="form-label-bold" for="BFPO-number">BFPO number</label>
+          <input class="form-control" id="BFPO-number" type="text" value='@{bfpo.bfpoNo}'>
+        </div>
 
-    <div class="form-group">
-      <label class="form-label-bold" for="BFPO-service-number">Service number</label>
-      <input class="form-control" id="BFPO-service-number" type="text">
-    </div>
+        <div class="form-group">
+          <label class="form-label-bold" for="BFPO-service-number">Service number</label>
+          <input class="form-control" id="BFPO-service-number" type="text">
+        </div>
 
-    <div class="form-group">
-      <label class="form-label-bold" for="BFPO-rank">Rank</label>
-      <input class="form-control" id="BFPO-rank" type="text">
-    </div>
+        <div class="form-group">
+          <label class="form-label-bold" for="BFPO-rank">Rank</label>
+          <input class="form-control" id="BFPO-rank" type="text">
+        </div>
 
-    <div class="form-group">
-      <label class="form-label-bold" for="BFPO-name">Name</label>
-      <input class="form-control" id="BFPO-name" type="text">
-    </div>
+        <div class="form-group">
+          <label class="form-label-bold" for="BFPO-name">Name</label>
+          <input class="form-control" id="BFPO-name" type="text">
+        </div>
 
-    <div class="form-group">
-      <label class="form-label-bold" for="BFPO-unit-regiment-department">Unit,Regiment and/or Department</label>
-      <input class="form-control" id="BFPO-unit-regiment-department" type="text">
-    </div>
+        <div class="form-group">
+          <label class="form-label-bold" for="BFPO-unit-regiment-department">Unit,Regiment and/or Department</label>
+          <input class="form-control" id="BFPO-unit-regiment-department" type="text">
+        </div>
 
-    <div class="form-group">
-      <label class="form-label-bold" for="BFPO-operation-name">Operation name (if applicable)</label>
-      <input class="form-control" id="BFPO-operation-name" type="text">
-    </div>
+        <div class="form-group">
+          <label class="form-label-bold" for="BFPO-operation-name">Operation name (if applicable)</label>
+          <input class="form-control" id="BFPO-operation-name" type="text" value='@{bfpo.opName}'>
+        </div>
+      }
+    } else {
+      <div class="form-group">
+        <label class="form-label-bold" for="BFPO-postcode">BFPO post code</label>
+        <input class="form-control" id="BFPO-postcode" name="BFPO-postcode" type="text">
+      </div>
+    }
+  }
 
-    <div class="form-group">
-      <input class="button" type="submit" value="Continue" disabled>
-    </div>
+  <div class="form-group">
+    <input class="button" type="submit" value="Continue">
+  </div>
 
-  </form>
+</form>
