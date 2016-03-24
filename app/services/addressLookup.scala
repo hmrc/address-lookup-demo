@@ -43,8 +43,9 @@ trait AddressLookupService extends AddressLookupWS {
  // val url = s"http://$lookupServer/address-lookup/v1/uk/addresses.json"
  val url = s"http://$lookupServer/uk/addresses"
 
+
   implicit val addrReader: Reads[Address] = (
-    (JsPath \\ "id").read[String] and
+    (JsPath \ "id").read[String] and
       (JsPath \\ "lines").read[Array[String]] and
       (JsPath \\ "town").read[String] and
       (JsPath \\ "postcode").read[String]
