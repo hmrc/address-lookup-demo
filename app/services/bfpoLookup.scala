@@ -44,7 +44,7 @@ trait BfpoLookupService extends BfpoLookupWS {
  val url1 = s"http://$lookupServer1/bfpo/addresses"
 
   implicit val bfpoReader: Reads[Bfpo] = (
-    (JsPath \\ "opName").read[String] and
+    (JsPath \ "opName").readNullable[String] and
       (JsPath \\ "bfpoNo").read[String] and
       (JsPath \\ "postcode").read[String]
     ) (Bfpo.apply _)
@@ -71,7 +71,7 @@ trait BfpoLookupService extends BfpoLookupWS {
 }
 
 
-case class Bfpo(opName: String, bfpoNo:String, postcode: String) {
+case class Bfpo(opName: Option[String], bfpoNo:String, postcode: String) {
   def toBfpoString: String = {
     s"$opName $bfpoNo $postcode"
   }

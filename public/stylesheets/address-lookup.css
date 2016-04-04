@@ -1,8 +1,13 @@
-#INT-Tab {
+
+#UK-Tab-hidden {
     display: none;
 }
 
-#BFPO-Tab {
+#INT-Tab-hidden {
+    display: none;
+}
+
+#BFPO-Tab-hidden {
     display: none;
 }
 
@@ -22,6 +27,11 @@
 #hiddenselection {
     visibility: hidden;
 }
+
+#hiddentab {
+    visibility: hidden;
+}
+
 
 .warning-box {
     background: #FFBF47;

@@ -1,4 +1,4 @@
-@(typedDetails: AddressTypedDetails, address:Option[services.Address], bfpoTypedDetails: Option[BFPOAddTypedDetails], countries: List[String], addressList: Option[List[services.Address]], errorMessage: Option[List[AddressErrorMsg]] = None)(implicit request: Request[_])
+@(typedDetails: AddressTypedDetails, address:Option[services.Address], bfpoTypedDetails: Option[BFPOAddTypedDetails], countries: List[String], addressList: Option[List[services.Address]], errorMessage: Option[List[AddressErrorMsg]] = None, showSelected:String)(implicit request: Request[_])
 
 <script src="assets/javascripts/vendor/jquery-1.11.0.min.js"></script>
 <script src="assets/javascripts/selection-buttons.js"></script>
@@ -26,30 +26,31 @@
     <fieldset class="inline">
         <div class="form-group" id="location">
             <label class="block-label" data-target="UK-Tab" for="location-UK">
-                <input id="location-UK" type="radio" name="radio-inline-group" value="UK" checked="checked">
+                <input id="location-UK" type="radio" name="radio-inline-group" value="UK" @{"checked=checked".when(showSelected == "uktab")}>
                 United Kingdom
             </label>
 
             <label class="block-label" data-target="INT-Tab" for="location-international">
-                <input id="location-international" type="radio" name="radio-inline-group" value="INT">
+                <input id="location-international" type="radio" name="radio-inline-group" value="INT" @{"checked=checked".when(showSelected == "inttab")}>
                 International
             </label>
 
             <label class="block-label" data-target="BFPO-Tab" for="location-BFPO">
-                <input id="location-BFPO" type="radio" name="radio-inline-group" value="BFPO">
+                <input id="location-BFPO" type="radio" name="radio-inline-group" value="BFPO" @{"checked=checked".when(showSelected == "bfpotab")}>
                 BFPO
             </label>
         </div>
 
-        <div class="panel panel-border-narrow" id="UK-Tab">
+
+        <div class="panel panel-border-narrow" id='UK-Tab@{"-hidden".when(showSelected != "uktab")}' @{"aria-hidden=false".when(showSelected != "uktab")}>
             @ukTab(typedDetails, addressList, address, errorMessage)
         </div>
 
-        <div class="panel panel-border-narrow" id="INT-Tab">
+        <div class="panel panel-border-narrow" id='INT-Tab@{"-hidden".when(showSelected != "inttab")}' @{"aria-hidden=true".when(showSelected != "inttab")} >
             @intTab(countries, errorMessage)
         </div>
 
-        <div class="panel panel-border-narrow" id="BFPO-Tab">
+        <div class="panel panel-border-narrow" id='BFPO-Tab@{"-hidden".when(showSelected != "bfpotab")}' @{"aria-hidden=true".when(showSelected != "bfpotab")}>
             @bfpoTab(bfpoTypedDetails, errorMessage)
         </div>
 
