@@ -35,7 +35,7 @@ class AddressLookupSpec extends PlaySpec with Results with OneAppPerSuite {
 
     "check address template" in {
       // new WithApplication
-      val html = views.html.addresslookup.address_lookup(AddressTypedDetails(""), None, None, Countries.countries, None, None)(FakeRequest())
+      val html = views.html.addresslookup.address_lookup(AddressTypedDetails(""), None, None, Countries.countries, None, None, "")(FakeRequest())
       contentAsString(html) must include("Your Address")
     }
 
