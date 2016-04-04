@@ -42,15 +42,15 @@
         </div>
 
 
-        <div class="panel panel-border-narrow" id='UK-Tab@{"-hidden".when(showSelected != "uktab")}' @{"aria-hidden=false".when(showSelected != "uktab")}>
+        <div class="panel panel-border-narrow" id='UK-Tab' @{"aria-hidden=false".when(showSelected != "uktab")}>
             @ukTab(typedDetails, addressList, address, errorMessage)
         </div>
 
-        <div class="panel panel-border-narrow" id='INT-Tab@{"-hidden".when(showSelected != "inttab")}' @{"aria-hidden=true".when(showSelected != "inttab")} >
+        <div class="panel panel-border-narrow" id='INT-Tab' @{"aria-hidden=true".when(showSelected != "inttab")} >
             @intTab(countries, errorMessage)
         </div>
 
-        <div class="panel panel-border-narrow" id='BFPO-Tab@{"-hidden".when(showSelected != "bfpotab")}' @{"aria-hidden=true".when(showSelected != "bfpotab")}>
+        <div class="panel panel-border-narrow" id='BFPO-Tab' @{"aria-hidden=true".when(showSelected != "bfpotab")}>
             @bfpoTab(bfpoTypedDetails, errorMessage)
         </div>
 
