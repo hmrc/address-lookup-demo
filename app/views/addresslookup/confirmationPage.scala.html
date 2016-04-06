@@ -1,4 +1,4 @@
-@(ukTypedDetails: AddressTypedDetails, intTypedDetails: Option[IntAddTypedDetails], address:Option[services.Address], noFixedAddress:Boolean)(implicit request: Request[_])
+@(ukTypedDetails: AddressTypedDetails, intTypedDetails: Option[IntAddTypedDetails], bfpoTypedDetails: Option[BFPOAddTypedDetails], address:Option[services.Address], noFixedAddress:Boolean)(implicit request: Request[_])
 
 <script src="assets/javascripts/vendor/jquery-1.11.0.min.js"></script>
 <script src="assets/javascripts/selection-buttons.js"></script>
@@ -46,6 +46,14 @@
                             } else {
                                 ERROR: Unable to find address details
                             }
+                        }
+                        @for(bfpo <- bfpoTypedDetails){
+                            <p>Postcode: @bfpo.postcode</p>
+                            <p>BFPO No: @bfpo.number</p>
+                            <p>Service No: @bfpo.serviceNo</p>
+                            <p>Name: @{bfpo.rank}, @{bfpo.name}</p>
+                            <p>Unit: @bfpo.unitRegDep</p>
+                            <p>Op name: @bfpo.opName</p>
                         }
                     }
                 }

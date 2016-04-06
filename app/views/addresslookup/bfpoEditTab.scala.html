@@ -1,0 +1,116 @@
+@(bfpoTypedDetails: Option[BFPOAddTypedDetails], errorMessage: Option[List[AddressErrorMsg]] = None)(implicit request: Request[_])
+
+
+<form action="address-lookup-bfpo-edit" method="get">
+
+  <input type="checkbox" name="hiddentab" id="hiddentab" value="bfpotab" checked>
+
+  @for(bfpo <- bfpoTypedDetails) {
+
+    @if(errorMessage.exists( _.contains(BFPOBlankPostcode() ))) {
+      <div class="form-group error">
+        <label for="error-BFPO-postcode-label">
+          <span class="form-label-bold">BFPO post code</span>
+          <span class="form-hint">A valid BFPO post code is required</span>
+          <span class="error-message" id="error-BFPO-postcode-label">BFPO post code was left blank</span>
+        </label>
+        <input class="form-control" id="BFPO-postcode-error" name="BFPO-postcode" type="text">
+      </div>
+    } else {
+      <div class="form-group">
+        <label class="form-label-bold" for="BFPO-typed-postcode">BFPO post code</label>
+        <input class="form-control" id="BFPO-typed-postcode" name="BFPO-postcode" type="text" value='@{bfpo.postcode}'>
+      </div>
+    }
+
+    @if(errorMessage.exists( _.contains(BFPOBlankNumber() ))) {
+      <div class="form-group error">
+        <label for="error-BFPO-number-label">
+          <span class="form-label-bold">BFPO number</span>
+          <span class="form-hint">A valid BFPO number is required</span>
+          <span class="error-message" id="error-BFPO-number-label">BFPO number was left blank</span>
+        </label>
+        <input class="form-control" id="BFPO-number-error" name="BFPO-number" type="text">
+      </div>
+    } else {
+      <div class="form-group">
+        <label class="form-label-bold" for="BFPO-number">BFPO number</label>
+        <input class="form-control" id="BFPO-number" name="BFPO-number" type="text" value='@{bfpo.number}'>
+      </div>
+    }
+
+    @if(errorMessage.exists( _.contains(BFPOBlankServiceNo() ))) {
+      <div class="form-group error">
+        <label for="error-BFPO-service-number-label">
+          <span class="form-label-bold">Service number</span>
+          <span class="form-hint">A valid Service number is required</span>
+          <span class="error-message" id="error-BFPO-service-number-label">Service number was left blank</span>
+        </label>
+        <input class="form-control" id="BFPO-service-number-error" name="BFPO-service-number" type="text">
+      </div>
+    } else {
+      <div class="form-group">
+        <label class="form-label-bold" for="BFPO-service-number">Service number</label>
+        <input class="form-control" id="BFPO-service-number" name="BFPO-service-number" type="text" value='@{bfpo.serviceNo}'>
+      </div>
+    }
+
+    @if(errorMessage.exists( _.contains(BFPOBlankRank() ))) {
+      <div class="form-group error">
+        <label for="error-BFPO-rank-label">
+          <span class="form-label-bold">Rank</span>
+          <span class="form-hint">A valid Rank is required</span>
+          <span class="error-message" id="error-BFPO-rank-label">Rank was left blank</span>
+        </label>
+        <input class="form-control" id="BFPO-rank-error" name="BFPO-rank" type="text">
+      </div>
+    } else {
+      <div class="form-group">
+        <label class="form-label-bold" for="BFPO-rank">Rank</label>
+        <input class="form-control" id="BFPO-rank" name="BFPO-rank" type="text" value='@{bfpo.rank}'>
+      </div>
+    }
+
+    @if(errorMessage.exists( _.contains(BFPOBlankName() ))) {
+      <div class="form-group error">
+        <label for="error-BFPO-name-label">
+          <span class="form-label-bold">Name</span>
+          <span class="form-hint">A valid Name is required</span>
+          <span class="error-message" id="error-BFPO-name-label">Name was left blank</span>
+        </label>
+        <input class="form-control" id="BFPO-name-error" name="BFPO-name" type="text">
+      </div>
+    } else {
+      <div class="form-group">
+        <label class="form-label-bold" for="BFPO-name">Name</label>
+        <input class="form-control" id="BFPO-name" name="BFPO-name" type="text" value='@{bfpo.name}'>
+      </div>
+    }
+
+    @if(errorMessage.exists( _.contains(BFPOBlankUnitRegDep() ))) {
+      <div class="form-group error">
+        <label for="error-BFPO-unit-regiment-department-label">
+          <span class="form-label-bold">Unit,Regiment and/or Department</span>
+          <span class="form-hint">A valid Unit,Regiment and/or Department is required</span>
+          <span class="error-message" id="error-BFPO-unit-regiment-department-label">Unit,Regiment and/or Department was left blank</span>
+        </label>
+        <input class="form-control" id="BFPO-unit-regiment-department-error" name="BFPO-unit-regiment-department" type="text">
+      </div>
+    } else {
+      <div class="form-group">
+        <label class="form-label-bold" for="BFPO-unit-regiment-department">Unit,Regiment and/or Department</label>
+        <input class="form-control" id="BFPO-unit-regiment-department" name="BFPO-unit-regiment-department" type="text" value='@{bfpo.unitRegDep}'>
+      </div>
+    }
+
+    <div class="form-group">
+      <label class="form-label-bold" for="BFPO-operation-name">Operation name (if applicable)</label>
+      <input class="form-control" id="BFPO-operation-name" name="BFPO-operation-name" type="text" value='@{bfpo.opName}'>
+    </div>
+  }
+
+  <div class="form-group">
+    <input class="button" type="submit" value="Continue">
+  </div>
+
+</form>
