@@ -51,7 +51,11 @@
         </div>
 
         <div class="panel panel-border-narrow" id='BFPO-Tab' @{"aria-hidden=true".when(showSelected != "bfpotab")} @{"hidden".when(showSelected != "bfpotab")}>
-            @bfpoTab(bfpoTypedDetails, errorMessage)
+           @if(errorMessage.exists(_.contains(EditBFPODetails() ))) {
+                @bfpoEditTab(bfpoTypedDetails, errorMessage)
+            } else {
+                @bfpoTab(bfpoTypedDetails, errorMessage)
+            }
         </div>
 
 
