@@ -30,7 +30,7 @@ import scala.concurrent.Future
 
 
 trait BfpoLookupWS {
-  def findBfpo(postcode: String): Future[Either[Status, Option[List[Bfpo]]]]
+  def findBfpo(postcode: String): Future[Either[Status, Option[List[BfpoDB]]]]
 }
 
 trait BfpoLookupService extends BfpoLookupWS {
@@ -43,14 +43,14 @@ trait BfpoLookupService extends BfpoLookupWS {
  // val url = s"http://$lookupServer/address-lookup/v1/uk/addresses.json"
  val url1 = s"http://$lookupServer1/bfpo/addresses"
 
-  implicit val bfpoReader: Reads[Bfpo] = (
+  implicit val bfpoReader: Reads[BfpoDB] = (
     (JsPath \ "opName").readNullable[String] and
       (JsPath \\ "bfpoNo").read[String] and
       (JsPath \\ "postcode").read[String]
-    ) (Bfpo.apply _)
+    ) (BfpoDB.apply _)
 
 
-  def findBfpo(postcode: String): Future[Either[Status, Option[List[Bfpo]]]] = {
+  def findBfpo(postcode: String): Future[Either[Status, Option[List[BfpoDB]]]] = {
     val query: Seq[(String, String)] = Seq(
       ("postcode", postcode))
 
@@ -58,7 +58,7 @@ trait BfpoLookupService extends BfpoLookupWS {
       case response if response.status == OK =>
         response.json match {
           case bfpos: play.api.libs.json.JsArray =>
-            val bfpoList = Right(Some(bfpos.value.map { i => i.as[Bfpo] }.toList))
+            val bfpoList = Right(Some(bfpos.value.map { i => i.as[BfpoDB] }.toList))
             bfpoList
           case err => Left(ServiceUnavailable)
         }
@@ -71,7 +71,7 @@ trait BfpoLookupService extends BfpoLookupWS {
 }
 
 
-case class Bfpo(opName: Option[String], bfpoNo:String, postcode: String) {
+case class BfpoDB(opName: Option[String], bfpoNo:String, postcode: String) {
   def toBfpoString: String = {
     s"$opName $bfpoNo $postcode"
   }
