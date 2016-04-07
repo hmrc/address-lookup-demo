@@ -1,4 +1,4 @@
-@(typedDetails: AddressTypedDetails, address:Option[services.Address], bfpoTypedDetails: Option[BFPOAddTypedDetails], countries: List[String], addressList: Option[List[services.Address]], errorMessage: Option[List[AddressErrorMsg]] = None, showSelected:String)(implicit request: Request[_])
+@(ukAddrForm:Form[AddressData], typedDetails: AddressTypedDetails, address:Option[services.Address], bfpoTypedDetails: Option[BFPOAddTypedDetails], countries: List[String], addressList: Option[List[services.Address]], errorMessage: Option[List[AddressErrorMsg]] = None, showSelected:String)(implicit request: Request[_])
 
 <script src="assets/javascripts/vendor/jquery-1.11.0.min.js"></script>
 <script src="assets/javascripts/selection-buttons.js"></script>
@@ -43,7 +43,7 @@
 
 
         <div class="panel panel-border-narrow" id='UK-Tab' @{"aria-hidden=true".when(showSelected != "uktab")} @{"hidden".when(showSelected != "uktab")}>
-            @ukTab(typedDetails, addressList, address, errorMessage)
+            @ukTab(ukAddrForm, typedDetails, addressList, address, errorMessage)
         </div>
 
         <div class="panel panel-border-narrow" id='INT-Tab' @{"aria-hidden=true".when(showSelected != "inttab")} @{"hidden".when(showSelected != "inttab")}>
