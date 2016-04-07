@@ -18,13 +18,16 @@ package controllers
 
 
 import play.api.mvc.Results._
-import services.{AddressLookupWS, Bfpo, BfpoLookupWS}
+import services.{AddressLookupWS, BfpoDB, BfpoLookupWS}
 
 import concurrent._
 import play.api.mvc._
 import play.api.test._
 import org.scalatestplus.play._
+import play.api.data.Form
+import play.api.data.Forms._
 import play.api.test.Helpers._
+import play.filters.csrf.CSRF
 
 class AddressLookupSpec extends PlaySpec with Results with OneAppPerSuite {
 
@@ -35,13 +38,28 @@ class AddressLookupSpec extends PlaySpec with Results with OneAppPerSuite {
 
     "check address template" in {
       // new WithApplication
-      val html = views.html.addresslookup.address_lookup(AddressTypedDetails(""), None, None, Countries.countries, None, None, "")(FakeRequest())
+      val addressForm = Form[AddressData] {
+        mapping("house-name-number" -> optional(text),
+          "UK-postcode" -> text,
+          "hiddenselection" -> optional(text),
+          "no-fixed-address" -> optional(text),
+          "radio-inline-group" -> optional(text),
+          "UK-address-line1" -> optional(text),
+          "UK-address-line2" -> optional(text),
+          "UK-address-line3" -> optional(text),
+          "UK-town" -> optional(text),
+          "UK-county" -> optional(text)
+        )(AddressData.apply)(AddressData.unapply)
+      }
+
+      val html = views.html.addresslookup.address_lookup(addressForm, AddressTypedDetails(""), None, None, Countries.countries, None, None, "")(
+        FakeRequest().withSession("csrfToken" -> CSRF.SignedTokenProvider.generateToken))
       contentAsString(html) must include("Your Address")
     }
 
     "return a blank page" in {
       val controller = new AddressLookupController with DummyWS
-      val request = FakeRequest()
+      val request = FakeRequest().withSession("csrfToken" -> CSRF.SignedTokenProvider.generateToken)
       val result = controller.addressLookup().apply(request)
 
       val bodyText: String = contentAsString(result)
@@ -54,7 +72,7 @@ class AddressLookupSpec extends PlaySpec with Results with OneAppPerSuite {
       val controller = new AddressLookupController with DataWS
       val request = FakeRequest(GET,
         "/address-lookup-demo/address-lookup-selection?hiddenselection=hiddenselection&radio-inline-group=GB00001&UK-postcode=AA1AA1"
-      )
+      ).withSession("csrfToken" -> CSRF.SignedTokenProvider.generateToken)
       val result = controller.addressLookupSelection().apply(request)
 
       val bodyText: String = contentAsString(result)
@@ -66,7 +84,9 @@ class AddressLookupSpec extends PlaySpec with Results with OneAppPerSuite {
 
     "check if 'continue' is selected return a list of matching addresses" in {
       val controller = new AddressLookupController with DataWS
-      val request = FakeRequest(GET, "/address-lookup-demo/address-lookup-selection?UK-postcode=AA1AA1")
+      val request = FakeRequest(GET,
+        "/address-lookup-demo/address-lookup-selection?UK-postcode=AA1AA1"
+      ).withSession("csrfToken" -> CSRF.SignedTokenProvider.generateToken)
       val result = controller.addressLookupSelection().apply(request)
 
       val bodyText: String = contentAsString(result)
@@ -75,7 +95,9 @@ class AddressLookupSpec extends PlaySpec with Results with OneAppPerSuite {
 
     "A postcode with >50 addresses will display an error message" in {
       val controller = new AddressLookupController with Data60ItemsWS
-      val request = FakeRequest(GET, "/address-lookup-demo/address-lookup-selection?UK-postcode=AA1AA1")
+      val request = FakeRequest(GET,
+        "/address-lookup-demo/address-lookup-selection?UK-postcode=AA1AA1"
+      ).withSession("csrfToken" -> CSRF.SignedTokenProvider.generateToken)
       val result = controller.addressLookupSelection().apply(request)
 
       val bodyText: String = contentAsString(result)
@@ -84,7 +106,9 @@ class AddressLookupSpec extends PlaySpec with Results with OneAppPerSuite {
 
     "A postcode with 'random' data will display an error message" in {
       val controller = new AddressLookupController with DummyBadRequestWS
-      val request = FakeRequest(GET, "/address-lookup-demo/address-lookup-selection?house-name-number=&UK-postcode=nfjewk")
+      val request = FakeRequest(GET,
+        "/address-lookup-demo/address-lookup-selection?house-name-number=&UK-postcode=nfjewk"
+      ).withSession("csrfToken" -> CSRF.SignedTokenProvider.generateToken)
       val result = controller.addressLookupSelection().apply(request)
 
       val bodyText: String = contentAsString(result)
@@ -93,7 +117,9 @@ class AddressLookupSpec extends PlaySpec with Results with OneAppPerSuite {
 
     "check if 'continue' is selected we return edit fields" in {
       val controller = new AddressLookupController with DummyWS
-      val request = FakeRequest(GET, "/address-lookup-demo/address-lookup-selection?UK-postcode=AA1AA1")
+      val request = FakeRequest(GET,
+        "/address-lookup-demo/address-lookup-selection?UK-postcode=AA1AA1"
+      ).withSession("csrfToken" -> CSRF.SignedTokenProvider.generateToken)
       val result = controller.addressLookupSelection().apply(request)
 
       val bodyText: String = contentAsString(result)
@@ -102,7 +128,9 @@ class AddressLookupSpec extends PlaySpec with Results with OneAppPerSuite {
 
     "display warning if no postcode entered" in {
       val controller = new AddressLookupController with DummyWS
-      val request = FakeRequest(GET, "/address-lookup-demo/address-lookup-selection")
+      val request = FakeRequest(GET,
+        "/address-lookup-demo/address-lookup-selection"
+      ).withSession("csrfToken" -> CSRF.SignedTokenProvider.generateToken)
       val result = controller.addressLookupSelection().apply(request)
 
       val bodyText: String = contentAsString(result)
@@ -115,7 +143,7 @@ class AddressLookupSpec extends PlaySpec with Results with OneAppPerSuite {
       val controller = new AddressLookupController with DummyWS
       val request = FakeRequest(GET,
         "http://localhost:9000/address-lookup-demo/address-lookup-selection?house-name-number=&UK-postcode=AA1AA1&radio-inline-group=GB00001"
-      )
+      ).withSession("csrfToken" -> CSRF.SignedTokenProvider.generateToken)
       val result: Future[Result] = controller.addressLookupSelection().apply(request)
 
       val bodyText: String = contentAsString(result)
@@ -128,7 +156,7 @@ class AddressLookupSpec extends PlaySpec with Results with OneAppPerSuite {
       val controller = new AddressLookupController with DummyWS
       val request = FakeRequest(GET,
         "http://localhost:9000/address-lookup-demo/address-lookup-int-selection?int-country=Cuba&int-address=AAA"
-      )
+      ).withSession("csrfToken" -> CSRF.SignedTokenProvider.generateToken)
       val result: Future[Result] = controller.intContinueButton().apply(request)
 
       val bodyText: String = contentAsString(result)
@@ -173,6 +201,6 @@ trait DummyBadRequestWS extends AddressLookupWS with DummyBfpoWS {
 
 
 trait DummyBfpoWS  extends BfpoLookupWS {
-  def findBfpo(postcode: String): Future[Either[Status, Option[List[Bfpo]]]] = ???
+  def findBfpo(postcode: String): Future[Either[Status, Option[List[BfpoDB]]]] = ???
 
 }

@@ -1,15 +1,20 @@
-@(typedDetails: AddressTypedDetails, addressList: Option[List[services.Address]], address:Option[services.Address], errorMessage: Option[List[AddressErrorMsg]], maxAddresses: Int = 50)(implicit request: Request[_])
+@(ukAddrForm:Form[AddressData], typedDetails: AddressTypedDetails, addressList: Option[List[services.Address]], address:Option[services.Address], errorMessage: Option[List[AddressErrorMsg]], maxAddresses: Int = 50)(implicit request: Request[_])
+
+@import helper._
 
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script>
 <script src="http://malsup.github.com/jquery.form.js"></script>
 <script src="assets/javascripts/address-lookup.js"></script>
 <link href="assets/stylesheets/address-lookup.css" rel="stylesheet" type="text/css">
 
-<form action="address-lookup-selection" method="get" id="myForm">
 
-    <input type="checkbox" name="hiddenselection" id="hiddenselection" value="hiddenselection">
+@helper.form( helper.CSRF(controllers.routes.AddressLookup.addressLookupSelection), 'id -> "myForm"  ) {
 
-    <input type="checkbox" name="hiddentab" id="hiddentab" value="uktab" checked >
+
+    @helper.checkbox(ukAddrForm("hiddenselection"), 'id -> "hiddenselection", 'name -> "hiddenselection", '_label -> "" )
+
+    @helper.checkbox(ukAddrForm("hiddentab"), 'id -> "hiddentab", 'name -> "hiddentab", '_label -> "",  '_value -> ukAddrForm("hiddentab") )
+
 
     @for( addrX <- addressList) {
         @if(addrX.length > maxAddresses) {
@@ -127,7 +132,7 @@
         }
     </div>
 
-</form>
+}
 
 
 

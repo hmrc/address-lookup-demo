@@ -30,6 +30,7 @@
 
 #hiddentab {
     visibility: hidden;
+    checked: checked;
 }
 
 

@@ -1,5 +1,6 @@
 @(bfpoTypedDetails: Option[BFPOAddTypedDetails], errorMessage: Option[List[AddressErrorMsg]] = None)(implicit request: Request[_])
 
+@import helper._
 
 @validateInput(
   name:String,
@@ -27,9 +28,7 @@
   }
 }
 
-<form action="address-lookup-bfpo-edit" method="get">
-
-  <input type="checkbox" name="hiddentab" id="hiddentab" value="bfpotab" checked>
+@form( CSRF(controllers.routes.AddressLookup.bfpoEditButton) ) {
 
   @for(bfpo <- bfpoTypedDetails) {
 
@@ -58,4 +57,4 @@
     <input class="button" type="submit" value="Continue">
   </div>
 
-</form>
+}
