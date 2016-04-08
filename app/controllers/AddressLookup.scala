@@ -39,7 +39,7 @@ case class IntAddData(country: Option[String], address: Option[String])
 case class BFPOAddData(postcode: String )
 case class BFPOEditData(postcode: String, number: Option[String], serviceNo: Option[String], rank: Option[String], name: Option[String], unitRegDep: Option[String], opName: Option[String])
 
-trait AddressLookupController extends FrontendController {
+trait AddressLookupController extends FrontendController  {
   this: AddressLookupWS with BfpoLookupWS =>
 
   val DefaultTab = "uktab"
