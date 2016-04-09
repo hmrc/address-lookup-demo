@@ -1,6 +1,7 @@
-@(ukAddrForm:Form[AddressData], typedDetails: AddressTypedDetails, addressList: Option[List[services.Address]], address:Option[services.Address], errorMessage: Option[List[AddressErrorMsg]], maxAddresses: Int = 50)(implicit request: Request[_])
+@(ukAddrForm:Form[AddressData], addressList: Option[List[services.Address]], address:Option[services.Address], errorMessage: Option[List[AddressErrorMsg]], maxAddresses: Int = 50)(implicit request: Request[_])
 
 @import helper._
+@import services.MyHelpers._
 
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script>
 <script src="http://malsup.github.com/jquery.form.js"></script>
@@ -9,7 +10,6 @@
 
 
 @helper.form( helper.CSRF(controllers.routes.AddressLookup.addressLookupSelection), 'id -> "myForm"  ) {
-
 
     @helper.checkbox(ukAddrForm("hiddenselection"), 'id -> "hiddenselection", 'name -> "hiddenselection", '_label -> "" )
 
@@ -37,46 +37,19 @@
     }
 
     <div class="form-group">
-        <label class="form-label-bold" for="house-name-number">House name or number</label>
-        <input class="form-control" id="house-name-number" name="house-name-number" type="text" value='@{
-            typedDetails.flatNumber
-        }'>
+        @helper.inputText(ukAddrForm("house-name-number"),  'class -> "form-control",  '_label -> "House name or number" )
+
         <label class="form-checkbox" for="no-fixed-address">
             <input id="no-fixed-address" name="no-fixed-address" type="checkbox" value="true">
             I have no fixed address
         </label>
     </div>
 
-    @if(errorMessage.exists( _.contains(NoPostCode() ))) {
-        <div class="form-group error">
-            <label for="error-UK-postcode-blank">
-                <span class="form-label-bold">Post code</span>
-                <span class="form-hint">A post code is required</span>
-                <span class="error-message" id="error-message-postcode-blank">Post code was left blank</span>
-            </label>
-            <input class="form-control" id="error-UK-postcode-blank" type="text" name="UK-postcode" value="" aria-describedby="error-message-postcode">
-        </div>
 
-    } else {
+    <div class="form-group">
+        @helper.inputText(ukAddrForm("UK-postcode"),  'class -> "form-control",  '_label -> "Post code",  'maxlength -> "8"  )
+    </div>
 
-        @if(errorMessage.exists( _.contains(BadlyFormatedPostcode() ))) {
-            <div class="form-group error">
-                <label for="error-UK-postcode-unrecognised">
-                    <span class="form-label-bold">Post code</span>
-                    <span class="form-hint">The postcode was unrecognised</span>
-                    <span class="error-message" id="error-message-postcode-unrecognised">The postcode was unrecognised</span>
-                </label>
-                <input class="form-control" id="error-UK-postcode-unrecognised" type="text" name="UK-postcode" value='@{typedDetails.postcode}' aria-describedby="error-message-postcode">
-            </div>
-
-        } else {
-
-            <div class="form-group">
-                <label class="form-label-bold" for="UK-postcode">Post code</label>
-                <input class="form-control" id="UK-postcode" name="UK-postcode" type="text" maxlength="8" value='@{typedDetails.postcode}'>
-            </div>
-        }
-    }
 
 
     @for( addrX <- addressList) {
@@ -108,21 +81,20 @@
     }
 
     @if(errorMessage.exists( _.contains(AddManualEntry() ))) {
-        @if( address.nonEmpty) {
             <div class="form-group">
                 <h2>Amend address</h2>
                 <label class="form-label" for='UK-address-line1'>Address line 1</label>
-                <input class="form-control" id='UK-address-line1' name="UK-address-line1" type="text" value='@{address.get.line0}'>
+                @helper.inputText(ukAddrForm("UK-address-line1"),  'class -> "form-control",  '_label -> ""  )
                 <label class="form-label" for='UK-address-line2'>Address line 2</label>
-                <input class="form-control" id='UK-address-line2' name="UK-address-line2" type="text" value='@{address.get.line1}'>
-                <label class="form-label" for='UK-address-line3'>Address line 3</label>
-                <input class="form-control" id='UK-address-line3' name="UK-address-line3" type="text" value='@{address.get.line2}'>
+                @helper.inputText(ukAddrForm("UK-address-line2"),  'class -> "form-control",  '_label -> ""  )
+                <label class="form-label" for='UK-address-line2'>Address line 3</label>
+                @helper.inputText(ukAddrForm("UK-address-line3"),  'class -> "form-control",  '_label -> ""  )
                 <label class="form-label" for="UK-address-town">Nearest town or city</label>
-                <input class="form-control" id="UK-address-town" name="UK-town" type="text" value='@address.get.town'>
+                @helper.inputText(ukAddrForm("UK-town"),  'class -> "form-control",  '_label -> ""  )
                 <label class="form-label" for="UK-address-county">County</label>
-                <input class="form-control" id="UK-address-county" name="UK-county" type="text">
+                @helper.inputText(ukAddrForm("UK-address-county"),  'class -> "form-control",  '_label -> ""  )
+
             </div>
-        }
     }
 
     <div class="form-group">

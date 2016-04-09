@@ -17,7 +17,7 @@
 package services
 
 import com.typesafe.config.ConfigFactory
-import controllers.{InvalidPostcode, NoMatchesFound, AddressTypedDetails}
+import controllers.{InvalidPostcode, NoMatchesFound}
 import play.api.http.Status._
 import play.api.libs.json.{JsPath, Reads}
 import play.api.libs.ws.WS

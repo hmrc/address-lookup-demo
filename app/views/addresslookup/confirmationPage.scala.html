@@ -1,4 +1,4 @@
-@(ukTypedDetails: AddressTypedDetails, intTypedDetails: Option[IntAddTypedDetails], bfpoTypedDetails: Option[BFPOAddTypedDetails], address:Option[services.Address], noFixedAddress:Boolean)(implicit request: Request[_])
+@(intTypedDetails: Option[IntAddTypedDetails], bfpoTypedDetails: Option[BFPOAddTypedDetails], address:Option[services.Address], noFixedAddress:Boolean)(implicit request: Request[_])
 
 <script src="assets/javascripts/vendor/jquery-1.11.0.min.js"></script>
 <script src="assets/javascripts/selection-buttons.js"></script>
@@ -29,32 +29,23 @@
                     <p>@address.get.town</p>
                     <p>@address.get.postcode</p>
                 } else {
-                    @if(ukTypedDetails.line1.nonEmpty) {
-                        <p>@ukTypedDetails.line1</p>
-                        <p>@ukTypedDetails.line2</p>
-                        <p>@ukTypedDetails.line3</p>
-                        <p>@ukTypedDetails.town</p>
-                        <p>@ukTypedDetails.county</p>
-                        <p>@ukTypedDetails.postcode</p>
-                    } else {
-                        @for(addr <- intTypedDetails ) {
-                            @if(addr.country.nonEmpty) {
-                                @for( line <- addr.address ) {
-                                    <p>@line</p>
-                                }
-                               <p>Country: @addr.country</p>
-                            } else {
-                                ERROR: Unable to find address details
+                    @for(addr <- intTypedDetails ) {
+                        @if(addr.country.nonEmpty) {
+                            @for( line <- addr.address ) {
+                                <p>@line</p>
                             }
+                           <p>Country: @addr.country</p>
+                        } else {
+                            ERROR: Unable to find address details
                         }
-                        @for(bfpo <- bfpoTypedDetails){
-                            <p>Postcode: @bfpo.postcode</p>
-                            <p>BFPO No: @bfpo.number</p>
-                            <p>Service No: @bfpo.serviceNo</p>
-                            <p>Name: @{bfpo.rank}, @{bfpo.name}</p>
-                            <p>Unit: @bfpo.unitRegDep</p>
-                            <p>Op name: @bfpo.opName</p>
-                        }
+                    }
+                    @for(bfpo <- bfpoTypedDetails){
+                        <p>Postcode: @bfpo.postcode</p>
+                        <p>BFPO No: @bfpo.number</p>
+                        <p>Service No: @bfpo.serviceNo</p>
+                        <p>Name: @{bfpo.rank}, @{bfpo.name}</p>
+                        <p>Unit: @bfpo.unitRegDep</p>
+                        <p>Op name: @bfpo.opName</p>
                     }
                 }
             }
