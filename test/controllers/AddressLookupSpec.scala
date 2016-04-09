@@ -52,7 +52,7 @@ class AddressLookupSpec extends PlaySpec with Results with OneAppPerSuite {
         )(AddressData.apply)(AddressData.unapply)
       }
 
-      val html = views.html.addresslookup.address_lookup(addressForm, AddressTypedDetails(""), None, None, Countries.countries, None, None, "")(
+      val html = views.html.addresslookup.address_lookup(addressForm,  None, None, Countries.countries, None, None, "")(
         FakeRequest().withSession("csrfToken" -> CSRF.SignedTokenProvider.generateToken))
       contentAsString(html) must include("Your Address")
     }
@@ -134,7 +134,7 @@ class AddressLookupSpec extends PlaySpec with Results with OneAppPerSuite {
       val result = controller.addressLookupSelection().apply(request)
 
       val bodyText: String = contentAsString(result)
-      bodyText mustNot include("Post code")
+      bodyText mustNot include("A post code is required")
     }
   }
 

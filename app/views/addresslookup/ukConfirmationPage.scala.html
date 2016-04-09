@@ -1,0 +1,35 @@
+@(ukAddrForm:AddressData, noFixedAddress:Boolean)(implicit request: Request[_])
+
+<script src="assets/javascripts/vendor/jquery-1.11.0.min.js"></script>
+<script src="assets/javascripts/selection-buttons.js"></script>
+<script src="assets/javascripts/redirect.js"></script>
+<script src="assets/javascripts/application.js"></script>
+<link href="assets/stylesheets/address-lookup.css" rel="stylesheet" type="text/css">
+
+<div class="phase-banner-alpha">
+    <p>
+        <strong class="phase-tag">ALPHA</strong>
+        <span>This is a new service – your <a href="#">feedback</a> will help us to improve it.</span>
+    </p>
+</div>
+
+@main_template(title = "Address lookup demo", bodyClasses = None) {
+
+    <div class="govuk-box-highlight">
+        <h2 class="bold-large">Application complete</h2>
+        <p>Address:</p>
+        <span>
+            @if(noFixedAddress) {
+                No fixed address.
+            } else {
+                <p>@{ukAddrForm.editedLine1}</p>
+                <p>@{ukAddrForm.editedLine2}</p>
+                <p>@{ukAddrForm.editedLine3}</p>
+                <p>@{ukAddrForm.editedTown}</p>
+                <p>@{ukAddrForm.editedCounty}</p>
+                <p>@{ukAddrForm.postcode}</p>
+            }
+        </span>
+    </div>
+
+}
