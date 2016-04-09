@@ -1,7 +1,8 @@
 @(ukAddrForm:Form[AddressData], addressList: Option[List[services.Address]], address:Option[services.Address], errorMessage: Option[List[AddressErrorMsg]], maxAddresses: Int = 50)(implicit request: Request[_])
 
-@import helper._
 @import services.MyHelpers._
+
+@import uk.gov.hmrc.play.views.html.helpers
 
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script>
 <script src="http://malsup.github.com/jquery.form.js"></script>
@@ -9,7 +10,7 @@
 <link href="assets/stylesheets/address-lookup.css" rel="stylesheet" type="text/css">
 
 
-@helper.form( helper.CSRF(controllers.routes.AddressLookup.addressLookupSelection), 'id -> "myForm"  ) {
+@helpers.form( helper.CSRF(controllers.routes.AddressLookup.addressLookupSelection), 'id -> "myForm"  ) {
 
     @helper.checkbox(ukAddrForm("hiddenselection"), 'id -> "hiddenselection", 'name -> "hiddenselection", '_label -> "" )
 
