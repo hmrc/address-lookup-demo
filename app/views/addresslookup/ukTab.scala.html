@@ -10,7 +10,7 @@
 <link href="assets/stylesheets/address-lookup.css" rel="stylesheet" type="text/css">
 
 
-@helpers.form( helper.CSRF(controllers.routes.AddressLookup.addressLookupSelection), 'id -> "myForm"  ) {
+@helpers.form( controllers.routes.AddressLookup.addressLookupSelection, 'id -> "myForm"  ) {
 
     @helper.checkbox(ukAddrForm("hiddenselection"), 'id -> "hiddenselection", 'name -> "hiddenselection", '_label -> "" )
 
