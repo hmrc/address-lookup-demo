@@ -16,7 +16,6 @@
 
 package controllers
 
-//import com.typesafe.config.ConfigFactory
 import play.api.Logger
 import play.api.data._
 import play.api.data.Forms._
@@ -25,7 +24,6 @@ import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import scala.util.Try
 
-//import play.api.mvc.Results._
 import services._
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 import play.api.mvc._
