@@ -17,12 +17,14 @@
 package controllers
 
 //import com.typesafe.config.ConfigFactory
+import play.api.Logger
 import play.api.data._
 import play.api.data.Forms._
 
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import scala.util.Try
+
 //import play.api.mvc.Results._
 import services._
 import uk.gov.hmrc.play.frontend.controller.FrontendController
@@ -40,10 +42,11 @@ case class AddressData(
 
 case class IntAddData(country: Option[String], address: Option[String])
 
-case class BFPOAddData(postcode: String )
+case class BFPOAddData(postcode: String)
+
 case class BFPOEditData(postcode: String, number: Option[String], serviceNo: Option[String], rank: Option[String], name: Option[String], unitRegDep: Option[String], opName: Option[String])
 
-trait AddressLookupController extends FrontendController  {
+trait AddressLookupController extends FrontendController {
   this: AddressLookupWS with BfpoLookupWS =>
 
   val DefaultTab = "uktab"
@@ -52,47 +55,47 @@ trait AddressLookupController extends FrontendController  {
 
   val NoErrorMessage: Option[List[AddressErrorMsg]] = None
 
-  private def visibleTab[A](implicit request:Request[A] ):String = request.getQueryString("hiddentab").getOrElse(DefaultTab)
+  private def visibleTab[A](implicit request: Request[A]): String = request.getQueryString("hiddentab").getOrElse(DefaultTab)
 
-  private def okAddr[A](errList:Option[List[AddressErrorMsg]])(implicit request:Request[A] ) =
-    Ok(address_lookup(addressForm,  None, None, Countries.countries, None, errList, visibleTab))
+  private def okAddr[A](errList: Option[List[AddressErrorMsg]])(implicit request: Request[A]) =
+    Ok(address_lookup(addressForm, None, None, Countries.countries, None, errList, visibleTab))
 
-  private def fOkAddr[A]( errList:Option[List[AddressErrorMsg]])(implicit request:Request[A] ) =
+  private def fOkAddr[A](errList: Option[List[AddressErrorMsg]])(implicit request: Request[A]) =
     Future.successful(okAddr(errList))
 
-  val addressLookup: Action[AnyContent] = Action.async { implicit request =>
-    fOkAddr( NoErrorMessage)
+  def addressLookup: Action[AnyContent] = Action.async { implicit request =>
+    fOkAddr(NoErrorMessage)
   }
 
-  val BFPOAddForm = Form[BFPOAddData] (
+  val BFPOAddForm = Form[BFPOAddData](
     mapping("BFPO-postcode" -> text
     )(BFPOAddData.apply)(BFPOAddData.unapply)
   )
 
   val BFPOEditForm = Form[BFPOEditData] {
     mapping("BFPO-postcode" -> text,
-    "BFPO-number" -> optional(text),
-    "BFPO-service-number" -> optional(text),
-    "BFPO-rank" -> optional(text),
-    "BFPO-name" -> optional(text),
-    "BFPO-unit-regiment-department" -> optional(text),
-    "BFPO-operation-name" -> optional(text)
+      "BFPO-number" -> optional(text),
+      "BFPO-service-number" -> optional(text),
+      "BFPO-rank" -> optional(text),
+      "BFPO-name" -> optional(text),
+      "BFPO-unit-regiment-department" -> optional(text),
+      "BFPO-operation-name" -> optional(text)
     )(BFPOEditData.apply)(BFPOEditData.unapply)
   }
 
-  val bfpoContinueButton: Action[AnyContent] = Action.async { implicit request =>
+  def bfpoContinueButton: Action[AnyContent] = Action.async { implicit request =>
     BFPOAddForm.bindFromRequest().fold(
-      formWithErrors => fOkAddr( Some(List(BlankBFPOPostcode()))),
+      formWithErrors => fOkAddr(Some(List(BlankBFPOPostcode()))),
       address => {
         if (address.postcode.nonEmpty) {
           findBfpo(address.postcode).map {
             case Right(Some(bfpo: List[BfpoDB])) =>
-              Ok(address_lookup(addressForm,  None, Some(BFPOAddTypedDetails.createInputBFPOAddress(bfpo.head)), Countries.countries, None, Some(List(EditBFPODetails())), visibleTab))
+              Ok(address_lookup(addressForm, None, Some(BFPOAddTypedDetails.createInputBFPOAddress(bfpo.head)), Countries.countries, None, Some(List(EditBFPODetails())), visibleTab))
             case err =>
               okAddr(Some(List(InvalidPostcode())))
           }
         } else {
-          fOkAddr( Some(List(BlankBFPOPostcode())))
+          fOkAddr(Some(List(BlankBFPOPostcode())))
 
         }
       }
@@ -100,20 +103,20 @@ trait AddressLookupController extends FrontendController  {
   }
 
 
-  val bfpoEditButton: Action[AnyContent] = Action.async { implicit request =>
+  def bfpoEditButton: Action[AnyContent] = Action.async { implicit request =>
     BFPOEditForm.bindFromRequest().fold(
       formWithErrors => fOkAddr(Some(List(EditBFPODetails()))),
       address => {
-        var errList:List[AddressErrorMsg] = List(EditBFPODetails())
+        var errList: List[AddressErrorMsg] = List(EditBFPODetails())
 
-        if(address.name.isEmpty || address.name.contains("")) errList = BFPOBlankName() :: errList
-        if(address.postcode == "") errList = BFPOBlankPostcode() :: errList
-        if(address.number.isEmpty || address.number.contains("")) errList = BFPOBlankNumber() :: errList
-        if(address.serviceNo.isEmpty || address.serviceNo.contains("")) errList = BFPOBlankServiceNo() :: errList
-        if(address.rank.isEmpty || address.rank.contains("")) errList = BFPOBlankRank() :: errList
-        if(address.unitRegDep.isEmpty || address.unitRegDep.contains("")) errList = BFPOBlankUnitRegDep() :: errList
+        if (address.name.isEmpty || address.name.contains("")) errList = BFPOBlankName() :: errList
+        if (address.postcode == "") errList = BFPOBlankPostcode() :: errList
+        if (address.number.isEmpty || address.number.contains("")) errList = BFPOBlankNumber() :: errList
+        if (address.serviceNo.isEmpty || address.serviceNo.contains("")) errList = BFPOBlankServiceNo() :: errList
+        if (address.rank.isEmpty || address.rank.contains("")) errList = BFPOBlankRank() :: errList
+        if (address.unitRegDep.isEmpty || address.unitRegDep.contains("")) errList = BFPOBlankUnitRegDep() :: errList
 
-        if(errList.size == 1){
+        if (errList.size == 1) {
           Future.successful(Ok(confirmationPage(None, Some(BFPOAddTypedDetails.createInputBFPOAddress(address)), None, noFixedAddress = false)))
         } else {
           Future.successful(Ok(address_lookup(addressForm, None, Some(BFPOAddTypedDetails.createInputBFPOAddress(address)), Countries.countries, None, Some(errList), "bfpotab")))
@@ -125,29 +128,27 @@ trait AddressLookupController extends FrontendController  {
 
   val intAddForm = Form[IntAddData] {
     mapping("int-country" -> optional(text),
-    "int-address" -> optional(text)
+      "int-address" -> optional(text)
     )(IntAddData.apply)(IntAddData.unapply)
   }
 
-  val intContinueButton: Action[AnyContent] = Action.async { implicit request =>
+  def intContinueButton: Action[AnyContent] = Action.async { implicit request =>
     intAddForm.bindFromRequest().fold(
-      formWithErrors => fOkAddr( Some(List(BlankIntAddress())) ),
+      formWithErrors => fOkAddr(Some(List(BlankIntAddress()))),
       address => {
-        if(address.address.isEmpty || address.address.contains("")) {
-          fOkAddr(Some(List(BlankIntAddress())) )
-
-
+        if (address.address.isEmpty || address.address.contains("")) {
+          fOkAddr(Some(List(BlankIntAddress())))
         } else {
           Future.successful(Ok(confirmationPage(Some(IntAddTypedDetails.createInputIntAddress(address)), None, None, noFixedAddress = false)))
         }
-        }
+      }
     )
   }
 
 
   val addressForm = Form[AddressData] {
     mapping("house-name-number" -> optional(text),
-      "UK-postcode" -> text.verifying("A post code is required", s => !s.isEmpty ).verifying("The postcode was unrecognised", s => checkPostcodeFormat(s)),
+      "UK-postcode" -> text.verifying("A post code is required", s => !s.isEmpty).verifying("The postcode was unrecognised", s => checkPostcodeFormat(s)),
       "hiddenselection" -> optional(text),
       "no-fixed-address" -> optional(text),
       "radio-inline-group" -> optional(text),
@@ -174,28 +175,31 @@ trait AddressLookupController extends FrontendController  {
     }
   }
 
-  val addressLookupSelection: Action[AnyContent] = Action.async { implicit request =>
+  def addressLookupSelection: Action[AnyContent] = Action.async { implicit request =>
+    Logger.debug(s">>addressLookupSelection request=" + request)
     addressForm.bindFromRequest().fold(
       formWithErrors => {
-        Future.successful(Ok(address_lookup(formWithErrors,  None, None, Countries.countries, None, Some(List(NoPostCode())), visibleTab)))
+        Logger.debug(s">>addressLookupSelection error=" + formWithErrors)
+        Future.successful(Ok(address_lookup(formWithErrors, None, None, Countries.countries, None, Some(List(NoPostCode())), visibleTab)))
       },
       address => {
+        Logger.debug(s">>addressLookupSelection address=" + address)
         if (address.hiddenselection.nonEmpty) editButton(address) else continueButton(address)
       }
     )
   }
 
 
-  def continueButton(address:AddressData)(implicit request:Request[_]):Future[Result] = {
-    Future.successful(Ok(address_lookup(addressForm.fill(address), None, None, Countries.countries, None,  NoErrorMessage, visibleTab)))
+  def continueButton(address: AddressData)(implicit request: Request[_]): Future[Result] = {
+    Future.successful(Ok(address_lookup(addressForm.fill(address), None, None, Countries.countries, None, NoErrorMessage, visibleTab)))
 
-    if (address.noFixed.contains("true")){
+    if (address.noFixed.contains("true")) {
       // No fixed address
       Future.successful(Ok(ukConfirmationPage(address, noFixedAddress = true)))
     } else if (address.id.nonEmpty) {
       // selected addr from list
-      lookupAddr(address.id.get, address.postcode).map{ addr =>
-        val addrConf = addr.map( dbaddr => {
+      lookupAddr(address.id.get, address.postcode).map { addr =>
+        val addrConf = addr.map(dbaddr => {
           address.copy(
             postcode = dbaddr.postcode,
             editedLine1 = Some(dbaddr.line0),
@@ -212,10 +216,10 @@ trait AddressLookupController extends FrontendController  {
     } else {
       // list addresses
       findAddresses(address.postcode, address.nameNo) map {
-        case Right(addressList:Option[List[Address]]) =>
+        case Right(addressList: Option[List[Address]]) =>
 
-          val a:Form[AddressData] = addressList match {
-            case ( Some(addrLst)) =>
+          val a: Form[AddressData] = addressList match {
+            case (Some(addrLst)) =>
               addrLst.headOption.map { b =>
                 addressForm.fill(AddressData(address.nameNo,
                   b.postcode,
@@ -242,14 +246,13 @@ trait AddressLookupController extends FrontendController  {
   def editButton(address: AddressData)(implicit request: Request[_]): Future[Result] = {
     if (address.id.nonEmpty)
       lookupAddr(address.id.get, address.postcode).map { addr =>
-        Ok(address_lookup(addressForm, addr, None, Countries.countries, None, Some(List(AddManualEntry())),visibleTab))
+        Ok(address_lookup(addressForm, addr, None, Countries.countries, None, Some(List(AddManualEntry())), visibleTab))
       }
-    else Future.successful(Ok(address_lookup(addressForm, None, None, Countries.countries, None, Some(List(AddManualEntry())),visibleTab)))
+    else Future.successful(Ok(address_lookup(addressForm, None, None, Countries.countries, None, Some(List(AddManualEntry())), visibleTab)))
   }
 
 
-
-  def checkPostcodeFormat(pc:String): Boolean = {
+  def checkPostcodeFormat(pc: String): Boolean = {
     val r = findAddresses(pc, None) map {
       case Right(addressList) => true
       case Left(play.api.mvc.Results.BadRequest) => false
@@ -259,7 +262,7 @@ trait AddressLookupController extends FrontendController  {
     Await.result(r, Duration.Inf)
 
     r.value match {
-      case Some(x:Try[Boolean]) if x.isSuccess => x.get
+      case Some(x: Try[Boolean]) if x.isSuccess => x.get
       case _ => false
     }
   }
@@ -298,17 +301,17 @@ object Countries {
 }
 
 
-
 object IntAddTypedDetails {
   def empty: IntAddTypedDetails = IntAddTypedDetails("", List.empty[String])
 
-  def createInputIntAddress(addr:IntAddData): IntAddTypedDetails = IntAddTypedDetails(addr.country.getOrElse(""), addr.address.getOrElse("").split("\n").toList)
+  def createInputIntAddress(addr: IntAddData): IntAddTypedDetails = IntAddTypedDetails(addr.country.getOrElse(""), addr.address.getOrElse("").split("\n").toList)
 }
 
 object BFPOAddTypedDetails {
   def empty: BFPOAddTypedDetails = BFPOAddTypedDetails("", None, None, None, None, None, None)
 
   def createInputBFPOAddress(bfpo: BFPOAddData): BFPOAddTypedDetails = BFPOAddTypedDetails(bfpo.postcode, None, None, None, None, None, None)
+
   def createInputBFPOAddress(bfpo: BFPOEditData): BFPOAddTypedDetails = BFPOAddTypedDetails(bfpo.postcode, bfpo.number, bfpo.serviceNo, bfpo.rank, bfpo.name, bfpo.unitRegDep, bfpo.opName)
 
   def createInputBFPOAddress(bfpoDb: BfpoDB): BFPOAddTypedDetails = BFPOAddTypedDetails(bfpoDb.postcode, Some(bfpoDb.bfpoNo), None, None, None, None, bfpoDb.opName)
