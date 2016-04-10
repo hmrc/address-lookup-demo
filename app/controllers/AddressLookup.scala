@@ -58,7 +58,7 @@ trait AddressLookupController extends Controller {
   private def visibleTab[A](implicit request: Request[A]): String = request.getQueryString("hiddentab").getOrElse(DefaultTab)
 
   private def okAddr[A](errList: Option[List[AddressErrorMsg]])(implicit request: Request[A]) =
-    Ok(address_lookup(addressForm, None, None, Countries.countries, None, errList, visibleTab))
+    Ok(address_lookup(addressForm, None, Countries.countries, None, errList, visibleTab))
 
   private def fOkAddr[A](errList: Option[List[AddressErrorMsg]])(implicit request: Request[A]) =
     Future.successful(okAddr(errList))
@@ -90,7 +90,7 @@ trait AddressLookupController extends Controller {
         if (address.postcode.nonEmpty) {
           findBfpo(address.postcode).map {
             case Right(Some(bfpo: List[BfpoDB])) =>
-              Ok(address_lookup(addressForm, None, Some(BFPOAddTypedDetails.createInputBFPOAddress(bfpo.head)), Countries.countries, None, Some(List(EditBFPODetails())), visibleTab))
+              Ok(address_lookup(addressForm, Some(BFPOAddTypedDetails.createInputBFPOAddress(bfpo.head)), Countries.countries, None, Some(List(EditBFPODetails())), visibleTab))
             case err =>
               okAddr(Some(List(InvalidPostcode())))
           }
@@ -119,7 +119,7 @@ trait AddressLookupController extends Controller {
         if (errList.size == 1) {
           Future.successful(Ok(confirmationPage(None, Some(BFPOAddTypedDetails.createInputBFPOAddress(address)), None, noFixedAddress = false)))
         } else {
-          Future.successful(Ok(address_lookup(addressForm, None, Some(BFPOAddTypedDetails.createInputBFPOAddress(address)), Countries.countries, None, Some(errList), "bfpotab")))
+          Future.successful(Ok(address_lookup(addressForm, Some(BFPOAddTypedDetails.createInputBFPOAddress(address)), Countries.countries, None, Some(errList), "bfpotab")))
         }
       }
     )
@@ -180,7 +180,7 @@ trait AddressLookupController extends Controller {
     addressForm.bindFromRequest().fold(
       formWithErrors => {
         Logger.debug(s">>addressLookupSelection error=" + formWithErrors)
-        Future.successful(Ok(address_lookup(formWithErrors, None, None, Countries.countries, None, Some(List(NoPostCode())), visibleTab)))
+        Future.successful(Ok(address_lookup(formWithErrors, None, Countries.countries, None, Some(List(NoPostCode())), visibleTab)))
       },
       address => {
         Logger.debug(s">>addressLookupSelection address=" + address)
@@ -191,7 +191,7 @@ trait AddressLookupController extends Controller {
 
 
   def continueButton(address: AddressData)(implicit request: Request[_]): Future[Result] = {
-    Future.successful(Ok(address_lookup(addressForm.fill(address), None, None, Countries.countries, None, NoErrorMessage, visibleTab)))
+    Future.successful(Ok(address_lookup(addressForm.fill(address), None, Countries.countries, None, NoErrorMessage, visibleTab)))
 
     if (address.noFixed.contains("true")) {
       // No fixed address
@@ -214,12 +214,16 @@ trait AddressLookupController extends Controller {
 
       Future.successful(Ok(ukConfirmationPage(address, noFixedAddress = false)))
     } else {
+      Logger.debug(s">>continueButton find addr list=" + address)
+
       // list addresses
       findAddresses(address.postcode, address.nameNo) map {
         case Right(addressList: Option[List[Address]]) =>
 
-          val a: Form[AddressData] = addressList match {
+          val updatedDetails: Form[AddressData] = addressList match {
             case (Some(addrLst)) =>
+              Logger.debug(s">>continueButton found addr list=" + addrLst)
+
               addrLst.headOption.map { b =>
                 addressForm.fill(AddressData(address.nameNo,
                   b.postcode,
@@ -234,11 +238,13 @@ trait AddressLookupController extends Controller {
 
                 ))
               }.getOrElse(addressForm.fill(address))
-            case _ => addressForm.fill(address)
+            case err =>
+              Logger.debug(s">>continueButton found err=" + err)
+              addressForm.fill(address)
           }
-          Ok(address_lookup(a, None, None, Countries.countries, addressList, if (addressList.exists(_.isEmpty)) Some(List(NoMatchesFound())) else NoErrorMessage, visibleTab))
+          Ok(address_lookup(updatedDetails, None, Countries.countries, addressList, if (addressList.exists(_.isEmpty)) Some(List(NoMatchesFound())) else NoErrorMessage, visibleTab))
         case Left(_) =>
-          Ok(address_lookup(addressForm.fill(address), None, None, Countries.countries, None, Some(List(NoPostCode())), visibleTab))
+          Ok(address_lookup(addressForm.fill(address), None, Countries.countries, None, Some(List(NoPostCode())), visibleTab))
       }
     }
   }
@@ -246,9 +252,22 @@ trait AddressLookupController extends Controller {
   def editButton(address: AddressData)(implicit request: Request[_]): Future[Result] = {
     if (address.id.nonEmpty)
       lookupAddr(address.id.get, address.postcode).map { addr =>
-        Ok(address_lookup(addressForm, addr, None, Countries.countries, None, Some(List(AddManualEntry())), visibleTab))
+        val a = addr.get
+        val updatedAddr = addressForm.fill(AddressData(address.nameNo,
+          a.postcode,
+          address.hiddenselection,
+          address.noFixed,
+          address.id,
+          Some(a.line0),
+          Some(a.line1),
+          Some(a.line2),
+          Some(a.town),
+          address.editedCounty
+
+        ))
+        Ok(address_lookup(updatedAddr, None, Countries.countries, None, Some(List(AddManualEntry())), visibleTab))
       }
-    else Future.successful(Ok(address_lookup(addressForm, None, None, Countries.countries, None, Some(List(AddManualEntry())), visibleTab)))
+    else Future.successful(Ok(address_lookup(addressForm, None, Countries.countries, None, Some(List(AddManualEntry())), visibleTab)))
   }
 
 
