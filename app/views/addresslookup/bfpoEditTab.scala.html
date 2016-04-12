@@ -1,60 +1,26 @@
-@(bfpoTypedDetails: Option[BFPOAddTypedDetails], errorMessage: Option[List[AddressErrorMsg]] = None)(implicit request: Request[_])
-
-@import helper._
-
-@validateInput(
-  name:String,
-  value:String,
-  errItem:AddressErrorMsg,
-  inputName:String,
-  formTitle:String,
-  errHint:String,
-  errMsg:String
-) = {
-  @if(errorMessage.exists( _.contains(errItem))) {
-    <div class="form-group error">
-      <label for='error-BFPO-@name-label'>
-        <span class="form-label-bold">@formTitle</span>
-        <span class="form-hint">@errHint</span>
-        <span class="error-message" id='error-BFPO-@name-label'>@errMsg</span>
-      </label>
-      <input class="form-control" id='BFPO-@name-error' name=@inputName type="text">
-    </div>
-  } else {
-    <div class="form-group">
-      <label class="form-label-bold" for='BFPO-typed-@name'>@formTitle</label>
-      <input class="form-control" id='BFPO-typed-@name' name=@inputName type="text" value='@value'>
-    </div>
-  }
-}
-
-@form( CSRF(controllers.routes.AddressLookup.bfpoEditButton) ) {
-
-  @for(bfpo <- bfpoTypedDetails) {
-
-    @validateInput("postcode", bfpo.postcode, BFPOBlankPostcode(), "BFPO-postcode", "BFPO post code", "A valid BFPO post code is required", "BFPO post code was left blank" )
+@(bfpoAddrForm: Form[BFPOEditData])(implicit request: Request[_])
 
 
-    @validateInput("number", bfpo.number.getOrElse(""), BFPOBlankNumber(), "BFPO-number", "BFPO number", "A valid BFPO number is required", "BFPO number was left blank" )
+@import services.MyHelpers._
 
-    @validateInput("service-number", bfpo.serviceNo.getOrElse(""), BFPOBlankServiceNo(), "BFPO-service-number", "Service number", "A valid Service number is required", "Service number was left blank" )
+@import uk.gov.hmrc.play.views.html.helpers
 
-    @validateInput("rank", bfpo.rank.getOrElse(""), BFPOBlankRank(), "BFPO-rank", "Rank", "A valid Rank is required", "Rank was left blank" )
 
-    @validateInput("name", bfpo.name.getOrElse(""), BFPOBlankName(), "BFPO-name", "Name", "A valid Name is required", "Name was left blank" )
+@helpers.form(controllers.routes.AddressLookup.bfpoEditButton) {
 
-    @validateInput("unit-regiment-department", bfpo.unitRegDep.getOrElse(""), BFPOBlankUnitRegDep(), "BFPO-unit-regiment-department", "Unit,Regiment and/or Department", "A valid Unit,Regiment and/or Department is required", "Unit,Regiment and/or Department was left blank" )
+  @helper.checkbox(bfpoAddrForm("hiddentab"),  'value -> "bfpotab", 'checked -> true, '_label -> "" )
+
+
+  @helper.inputText(bfpoAddrForm("BFPO-postcode"), '_label -> "BFPO post code")
+  @helper.inputText(bfpoAddrForm("BFPO-number"), '_label -> "BFPO number")
+  @helper.inputText(bfpoAddrForm("BFPO-service-number"), '_label -> "Service number")
+  @helper.inputText(bfpoAddrForm("BFPO-rank"), '_label -> "Rank")
+  @helper.inputText(bfpoAddrForm("BFPO-name"), '_label ->  "Name")
+  @helper.inputText(bfpoAddrForm("BFPO-unit-regiment-department"), '_label ->  "Unit,Regiment and/or Department")
+  @helper.inputText(bfpoAddrForm("BFPO-operation-name"), '_label ->  "Operation name (if applicable)")
 
 
 
-    <div class="form-group">
-      <label class="form-label-bold" for="BFPO-operation-name">Operation name (if applicable)</label>
-      <input class="form-control" id="BFPO-operation-name" name="BFPO-operation-name" type="text" value='@{bfpo.opName}'>
-    </div>
-  }
-
-  <div class="form-group">
     <input class="button" type="submit" value="Continue">
-  </div>
 
 }

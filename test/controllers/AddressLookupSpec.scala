@@ -49,7 +49,33 @@ class AddressLookupSpec extends PlaySpec with Results with OneAppPerSuite {
         )(AddressData.apply)(AddressData.unapply)
       }
 
-      val html = views.html.addresslookup.address_lookup(addressForm, None, Countries.countries, None, None, "")(
+      val intAddForm = Form[IntAddData] {
+        mapping("int-country" -> optional(text),
+          "int-address" -> optional(text),
+          "hiddentab" -> default(text, "inttab")
+        )(IntAddData.apply)(IntAddData.unapply)
+      }
+
+      val BFPOAddForm = Form[BFPOAddData](
+        mapping("BFPO-postcode" -> text.verifying( "Post code was left blank", _.length > 0),
+          "hiddentab" -> default(text, "bfpotab")
+        )(BFPOAddData.apply)(BFPOAddData.unapply)
+      )
+
+      val BFPOEditForm = Form[BFPOEditData] {
+        mapping("BFPO-postcode" -> text.verifying( "A valid BFPO post code is required", _.length > 0),
+          "BFPO-number" -> text.verifying( "A valid BFPO number is required", _.length > 0),
+          "BFPO-service-number" -> text.verifying( "A valid Service number is required", _.length > 0),
+          "BFPO-rank" -> text.verifying( "Rank was left blank", _.length > 0),
+          "BFPO-name" -> text.verifying( "A valid Name is required", _.length > 0),
+          "BFPO-unit-regiment-department" -> text.verifying( "A valid Unit,Regiment and/or Department is required", _.length > 0),
+          "BFPO-operation-name" -> optional(text),
+          "hiddentab" -> default(text, "bfpotab")
+        )(BFPOEditData.apply)(BFPOEditData.unapply)
+      }
+
+
+      val html = views.html.addresslookup.address_lookup(addressForm, intAddForm, BFPOAddForm,BFPOEditForm, Countries.countries, None, None, "")(
         FakeRequest().withSession("csrfToken" -> CSRF.SignedTokenProvider.generateToken))
       contentAsString(html) must include("Your Address")
     }
@@ -189,22 +215,6 @@ class AddressLookupSpec extends PlaySpec with Results with OneAppPerSuite {
     }
   }
 
-
-  "validateBfpo" should {
-    "be empty with all valid data" in {
-      val address = BFPOEditData("BF1 3AA", Some("123"), Some("serviceNo"), Some("rank"), Some("name"), Some("unit"), Some("opName"))
-
-      val result = BFPOValidator.validateBfpo(address)
-      result.size must be (0)
-    }
-
-    "contain error when all values are incorrect" in {
-      val address = BFPOEditData("", None, None, None, None, None, None)
-
-      val result = BFPOValidator.validateBfpo(address)
-      result.size must be (6)
-    }
-  }
 
   "bfpo addressLookup action" should {
     "find address given a valid bfpo post code" in {

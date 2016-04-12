@@ -1,4 +1,4 @@
-@(ukAddrForm:Form[AddressData], addressList: Option[List[services.Address]], errorMessage: Option[List[AddressErrorMsg]], maxAddresses: Int = 50)(implicit request: Request[_])
+@(ukAddrForm:Form[AddressData], addressList: Option[List[services.Address]], optionFlag: Option[List[OptionFlag]], maxAddresses: Int = 50)(implicit request: Request[_])
 
 @import services.MyHelpers._
 
@@ -27,7 +27,7 @@
         }
     }
 
-    @if(errorMessage.exists( _.contains(NoMatchesFound() ))) {
+    @if(optionFlag.exists( _.contains(NoMatchesFound() ))) {
         <div class="form-group">
             <div class="warning-box">
                 <h2>No addresses found for given Post code</h2>
@@ -53,7 +53,7 @@
 
 
     @for( addrX <- addressList) {
-        @if(addrX.length <= maxAddresses && !errorMessage.exists( _.contains(NoMatchesFound() ))) {
+        @if(addrX.length <= maxAddresses && !optionFlag.exists( _.contains(NoMatchesFound() ))) {
             <div class="form-group">
                 <label class="form-label-bold" for="Address-table">Found addresses</label>
                 <table id="Address-table">
@@ -80,7 +80,7 @@
         }
     }
 
-    @if(errorMessage.exists( _.contains(AddManualEntry() ))) {
+    @if(optionFlag.exists( _.contains(AddManualEntry() ))) {
             <div class="form-group">
                 <h2>Amend address</h2>
                 <label class="form-label" for='UK-address-line1'>Address line 1</label>

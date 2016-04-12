@@ -1,39 +1,16 @@
-@(bfpoTypedDetails: Option[BFPOAddTypedDetails], errorMessage: Option[List[AddressErrorMsg]] = None)(implicit request: Request[_])
+@(bfpoShortAddrForm: Form[BFPOAddData])(implicit request: Request[_])
+
+@import services.MyHelpers._
+
+@import uk.gov.hmrc.play.views.html.helpers
 
 
-<form action="address-lookup-bfpo-selection" method="get">
+@helpers.form(controllers.routes.AddressLookup.bfpoContinueButton) {
 
-  <input type="checkbox" name="hiddentab" id="hiddentab" value="bfpotab" checked>
+  @helper.checkbox(bfpoShortAddrForm("hiddentab"),  'value -> "bfpotab", 'checked -> true, '_label -> "" )
 
-  @if(errorMessage.exists( _.contains(BlankBFPOPostcode() ))) {
-    <div class="form-group error">
-      <label for="error-BFPO-postcode-label">
-        <span class="form-label-bold">BFPO post code</span>
-        <span class="form-hint">A valid BFPO post code is required</span>
-        <span class="error-message" id="error-BFPO-postcode-label">Post code was left blank</span>
-      </label>
-      <input class="form-control" id="error-BFPO-postcode" name="BFPO-postcode" type="text" maxlength="8">
-    </div>
-  } else {
-    @if(errorMessage.exists( _.contains(InvalidPostcode() ))) {
-      <div class="form-group error">
-        <label for="error-BFPO-postcode-label">
-          <span class="form-label-bold">BFPO post code</span>
-          <span class="form-hint">A valid BFPO post code is required</span>
-          <span class="error-message" id="error-BFPO-postcode-label">Invalid BFPO postcode found</span>
-        </label>
-        <input class="form-control" id="error-BFPO-postcode" name="BFPO-postcode" type="text" maxlength="8">
-      </div>
-    } else {
-      <div class="form-group">
-        <label class="form-label-bold" for="BFPO-postcode">BFPO post code</label>
-        <input class="form-control" id="BFPO-postcode" name="BFPO-postcode" type="text">
-      </div>
-    }
-  }
+  @helper.inputText(bfpoShortAddrForm("BFPO-postcode"), 'maxlength -> "8", '_label -> "BFPO post code")
 
-  <div class="form-group">
-    <input class="button" type="submit" value="Continue">
-  </div>
+  <input class="button" type="submit" value="Continue">
 
-</form>
+}

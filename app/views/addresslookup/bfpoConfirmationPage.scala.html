@@ -1,0 +1,31 @@
+@(bfpoForm:BFPOEditData)(implicit request: Request[_])
+
+<script src="assets/javascripts/vendor/jquery-1.11.0.min.js"></script>
+<script src="assets/javascripts/selection-buttons.js"></script>
+<script src="assets/javascripts/redirect.js"></script>
+<script src="assets/javascripts/application.js"></script>
+<link href="assets/stylesheets/address-lookup.css" rel="stylesheet" type="text/css">
+
+<div class="phase-banner-alpha">
+    <p>
+        <strong class="phase-tag">ALPHA</strong>
+        <span>This is a new service – your <a href="#">feedback</a> will help us to improve it.</span>
+    </p>
+</div>
+
+@main_template(title = "Address lookup demo", bodyClasses = None) {
+
+    <div class="govuk-box-highlight">
+        <h2 class="bold-large">Application complete</h2>
+        <p>Address:</p>
+        <span>
+            <p>Postcode: @bfpoForm.postcode</p>
+            <p>BFPO No: @bfpoForm.number</p>
+            <p>Service No: @bfpoForm.serviceNo</p>
+            <p>Name: @{bfpoForm.rank}, @{bfpoForm.name}</p>
+            <p>Unit: @bfpoForm.unitRegDep</p>
+            <p>Op name: @bfpoForm.opName</p>
+        </span>
+    </div>
+
+}

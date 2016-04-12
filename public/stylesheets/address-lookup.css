@@ -25,11 +25,11 @@
 }
 
 #hiddenselection {
-    visibility: hidden;
+    display: none;;
 }
 
 #hiddentab {
-    visibility: hidden;
+    display: none;
     checked: checked;
 }
 
