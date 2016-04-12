@@ -38,10 +38,9 @@ trait BfpoLookupService extends BfpoLookupWS {
   import play.api.Play.current
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  val conf1 = ConfigFactory.load()
-  val lookupServer1 = conf1.getString("address-lookup-server")
- // val url = s"http://$lookupServer/address-lookup/v1/uk/addresses.json"
- val url1 = s"http://$lookupServer1/bfpo/addresses"
+  private lazy val conf = ConfigFactory.load()
+  private lazy val lookupServer1 = conf.getString("address-lookup-server")
+  private lazy val url = s"http://$lookupServer1/bfpo/addresses"
 
   implicit val bfpoReader: Reads[BfpoDB] = (
     (JsPath \ "opName").readNullable[String] and
@@ -51,10 +50,9 @@ trait BfpoLookupService extends BfpoLookupWS {
 
 
   def findBfpo(postcode: String): Future[Either[Status, Option[List[BfpoDB]]]] = {
-    val query: Seq[(String, String)] = Seq(
-      ("postcode", postcode))
+    val query: Seq[(String, String)] = Seq(("postcode", postcode))
 
-    WS.url(url1).withHeaders("User-Agent" -> "addressLookupDemo").withQueryString(query: _*).get().map {
+    WS.url(url).withHeaders("User-Agent" -> "addressLookupDemo").withQueryString(query: _*).get().map {
       case response if response.status == OK =>
         response.json match {
           case bfpos: play.api.libs.json.JsArray =>
@@ -71,8 +69,4 @@ trait BfpoLookupService extends BfpoLookupWS {
 }
 
 
-case class BfpoDB(opName: Option[String], bfpoNo:String, postcode: String) {
-  def toBfpoString: String = {
-    s"$opName $bfpoNo $postcode"
-  }
-}
+case class BfpoDB(opName: Option[String], bfpoNo:String, postcode: String)

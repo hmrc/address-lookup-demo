@@ -31,9 +31,6 @@ import play.filters.csrf.CSRF
 
 class AddressLookupSpec extends PlaySpec with Results with OneAppPerSuite {
 
-  //  trait AddressLookupTestController extends AddressLookupController with Controller
-
-
   "addressLookup action" should {
 
     "check address template" in {
@@ -52,7 +49,7 @@ class AddressLookupSpec extends PlaySpec with Results with OneAppPerSuite {
         )(AddressData.apply)(AddressData.unapply)
       }
 
-      val html = views.html.addresslookup.address_lookup(addressForm,  None, Countries.countries, None, None, "")(
+      val html = views.html.addresslookup.address_lookup(addressForm, None, Countries.countries, None, None, "")(
         FakeRequest().withSession("csrfToken" -> CSRF.SignedTokenProvider.generateToken))
       contentAsString(html) must include("Your Address")
     }
@@ -136,6 +133,19 @@ class AddressLookupSpec extends PlaySpec with Results with OneAppPerSuite {
       val bodyText: String = contentAsString(result)
       bodyText mustNot include("A post code is required")
     }
+
+    "check 'no fixed address'" in {
+      val controller = new AddressLookupController with DataWS
+      val request = FakeRequest(GET,
+        "/address-lookup-demo/address-lookup-selection?no-fixed-address=true&UK-postcode=''"
+      ).withSession("csrfToken" -> CSRF.SignedTokenProvider.generateToken).withFormUrlEncodedBody("no-fixed-address" -> "true")
+      val result = controller.addressLookupSelection().apply(request)
+
+      val bodyText: String = contentAsString(result)
+      bodyText must include("Application complete")
+      bodyText must include("No fixed address")
+    }
+
   }
 
   "completion page is displayed" should {
@@ -143,6 +153,19 @@ class AddressLookupSpec extends PlaySpec with Results with OneAppPerSuite {
       val controller = new AddressLookupController with DummyWS
       val request = FakeRequest(GET,
         "http://localhost:9000/address-lookup-demo/address-lookup-selection?house-name-number=&UK-postcode=AA1AA1&radio-inline-group=GB00001"
+      ).withSession("csrfToken" -> CSRF.SignedTokenProvider.generateToken)
+      val result: Future[Result] = controller.addressLookupSelection().apply(request)
+
+      val bodyText: String = contentAsString(result)
+      bodyText must include("Application complete")
+    }
+  }
+
+  "completion page with data filled in form DB is displayed" should {
+    "we press continue on the list of addrs" in {
+      val controller = new AddressLookupController with DummyListWS
+      val request = FakeRequest(GET,
+        "http://localhost:9000/address-lookup-demo/address-lookup-selection?house-name-number=&UK-postcode=AA1 AA1&radio-inline-group=GB00001"
       ).withSession("csrfToken" -> CSRF.SignedTokenProvider.generateToken)
       val result: Future[Result] = controller.addressLookupSelection().apply(request)
 
@@ -165,12 +188,80 @@ class AddressLookupSpec extends PlaySpec with Results with OneAppPerSuite {
       bodyText must include("Country: Cuba")
     }
   }
+
+
+  "validateBfpo" should {
+    "be empty with all valid data" in {
+      val address = BFPOEditData("BF1 3AA", Some("123"), Some("serviceNo"), Some("rank"), Some("name"), Some("unit"), Some("opName"))
+
+      val result = BFPOValidator.validateBfpo(address)
+      result.size must be (0)
+    }
+
+    "contain error when all values are incorrect" in {
+      val address = BFPOEditData("", None, None, None, None, None, None)
+
+      val result = BFPOValidator.validateBfpo(address)
+      result.size must be (6)
+    }
+  }
+
+  "bfpo addressLookup action" should {
+    "find address given a valid bfpo post code" in {
+      val controller = new AddressLookupController with DummyWSBFPOWithData
+      val request = FakeRequest(GET,
+        "http://localhost:9000/address-lookup-demo/address-lookup-bfpo-selection?hiddentab=bfpotab&BFPO-postcode=BF1+3AA"
+      ).withSession("csrfToken" -> CSRF.SignedTokenProvider.generateToken)
+      val result: Future[Result] = controller.bfpoContinueButton().apply(request)
+
+      val bodyText: String = contentAsString(result)
+      bodyText must include("BFPO post code")
+      bodyText must include("BF1 3AA")
+      bodyText must include("Op Test")
+    }
+
+    "edit address given a valid bfpo post code" in {
+      val controller = new AddressLookupController with DummyWSBFPOWithData
+      val request = FakeRequest(POST,
+        "http://localhost:9000/address-lookup-demo/address-lookup-bfpo-selection?hiddentab=bfpotab&BFPO-postcode=BF1+3AA"
+      ).withSession("csrfToken" -> CSRF.SignedTokenProvider.generateToken)
+      val result: Future[Result] = controller.bfpoEditButton().apply(request)
+
+      val bodyText: String = contentAsString(result)
+//      bodyText must include("Application complete")
+      bodyText must include("BFPO post code")
+      bodyText must include("BF1 3AA")
+    }
+
+    "edit address given a invalid bfpo post code" in {
+      val controller = new AddressLookupController with DummyWSBFPOWithInvalidPostCode
+      val request = FakeRequest(POST,
+        "http://localhost:9000/address-lookup-demo/address-lookup-bfpo-selection?hiddentab=bfpotab&BFPO-postcode=AA1 1ZZ"
+      ).withSession("csrfToken" -> CSRF.SignedTokenProvider.generateToken)
+      val result: Future[Result] = controller.bfpoContinueButton().apply(request)
+
+      val bodyText: String = contentAsString(result)
+//      bodyText must include("Application complete")
+      bodyText must include("BFPO post code")
+      bodyText must include("Invalid BFPO postcode found")
+//      bodyText must include("AA1 1ZZ")
+    }
+
+
+  }
 }
+
 
 
 trait DummyWS extends AddressLookupWS with DummyBfpoWS {
   def findAddresses(postcode: String, filter: Option[String]): Future[Either[Status, Option[List[services.Address]]]] = {
     Future.successful(Right(Some(List[services.Address]())))
+  }
+}
+
+trait DummyListWS extends AddressLookupWS with DummyBfpoWS {
+  def findAddresses(postcode: String, filter: Option[String]): Future[Either[Status, Option[List[services.Address]]]] = {
+    Future.successful(Right(Some(List[services.Address]( services.Address("GB00001",  Array[String]("line1","line2","line3"), "ATown", "AA1 AA1")))))
   }
 }
 
@@ -202,5 +293,22 @@ trait DummyBadRequestWS extends AddressLookupWS with DummyBfpoWS {
 
 trait DummyBfpoWS  extends BfpoLookupWS {
   def findBfpo(postcode: String): Future[Either[Status, Option[List[BfpoDB]]]] = ???
+}
 
+
+trait DummyWSBFPOWithData extends AddressLookupWS with DummyBfpoWS {
+  def findAddresses(postcode: String, filter: Option[String]): Future[Either[Status, Option[List[services.Address]]]] = ???
+
+  override def findBfpo(postcode: String): Future[Either[Status, Option[List[BfpoDB]]]] = {
+    Future.successful(Right(Some(List[services.BfpoDB](BfpoDB(Some("Op Test"), "123", "BF1 3AA")))))
+  }
+}
+
+trait DummyWSBFPOWithInvalidPostCode extends AddressLookupWS with DummyBfpoWS {
+  def findAddresses(postcode: String, filter: Option[String]): Future[Either[Status, Option[List[services.Address]]]] = ???
+
+  override def findBfpo(postcode: String): Future[Either[Status, Option[List[BfpoDB]]]] = {
+    Future.successful(Left(BadRequest))
+//    Future.successful(Right(Some(List[services.BfpoDB](BfpoDB(Some("Op Test"), "123", "AA1 1ZZ")))))
+  }
 }
