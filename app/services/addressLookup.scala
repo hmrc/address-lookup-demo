@@ -17,13 +17,9 @@
 package services
 
 import com.typesafe.config.ConfigFactory
-import controllers.{InvalidPostcode, NoMatchesFound}
-import play.api.Logger
 import play.api.http.Status._
 import play.api.libs.json.{JsPath, Reads}
 import play.api.libs.ws.WS
-import views.html.addresslookup.address_lookup
-import play.api.mvc._
 import play.api.mvc.Results._
 import play.api.libs.functional.syntax._
 
@@ -39,10 +35,9 @@ trait AddressLookupService extends AddressLookupWS {
   import play.api.Play.current
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  val conf = ConfigFactory.load()
-  val lookupServer = conf.getString("address-lookup-server")
- // val url = s"http://$lookupServer/address-lookup/v1/uk/addresses.json"
- val url = s"http://$lookupServer/uk/addresses"
+  private lazy val conf = ConfigFactory.load()
+  private lazy val lookupServer = conf.getString("address-lookup-server")
+  private lazy val url = s"http://$lookupServer/uk/addresses"
 
 
   implicit val addrReader: Reads[Address] = (
@@ -54,28 +49,21 @@ trait AddressLookupService extends AddressLookupWS {
 
 
   def findAddresses(postcode: String, filter: Option[String]): Future[Either[Status, Option[List[Address]]]] = {
-    val query: Seq[(String, String)] = Seq(
-      ("postcode", postcode)) ++ filter.map(name => "filter" -> name)
+    val query: Seq[(String, String)] = Seq(("postcode", postcode)) ++ filter.map(name => "filter" -> name)
 
-    Logger.debug(s">>findAddresses url= $url")
-
-    WS.url(url).withHeaders("X-Hmrc-Origin" -> "addressLookupDemo").withQueryString(query: _*).get().map {
+    WS.url(url).withHeaders("User-Agent" -> "addressLookupDemo").withQueryString(query: _*).get().map {
       case response if response.status == OK =>
         response.json match {
           case addrs: play.api.libs.json.JsArray =>
             val addressList = Right(Some(addrs.value.map { i => i.as[Address] }.toList))
             addressList
           case err =>
-            Logger.debug(s">>findAddresses ok, bad json err= $err")
             Left(ServiceUnavailable)
         }
       case response if response.status == BAD_REQUEST =>
-        Logger.debug(s">>findAddresses bad request= $response")
-
         Left(BadRequest)
 
       case err =>
-        Logger.debug(s">>findAddresses err= $err")
         Left(ServiceUnavailable)
     }
   }

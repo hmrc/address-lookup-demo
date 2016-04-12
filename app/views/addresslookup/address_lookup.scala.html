@@ -1,4 +1,4 @@
-@(ukAddrForm:Form[AddressData], bfpoTypedDetails: Option[BFPOAddTypedDetails], countries: List[String], addressList: Option[List[services.Address]], errorMessage: Option[List[AddressErrorMsg]] = None, showSelected:String)(implicit request: Request[_])
+@(ukAddrForm:Form[AddressData], intAddrForm:Form[IntAddData], bfpoShortAddrForm: Form[BFPOAddData], bfpoAddrForm: Form[BFPOEditData], countries: List[String], addressList: Option[List[services.Address]], optionFlag: Option[List[OptionFlag]] = None, showSelected:String)(implicit request: Request[_])
 
 <script src="assets/javascripts/vendor/jquery-1.11.0.min.js"></script>
 <script src="assets/javascripts/selection-buttons.js"></script>
@@ -43,18 +43,18 @@
 
 
         <div class="panel panel-border-narrow" id='UK-Tab' @{"aria-hidden=true".when(showSelected != "uktab")} @{"hidden".when(showSelected != "uktab")}>
-            @ukTab(ukAddrForm, addressList, errorMessage)
+            @ukTab(ukAddrForm, addressList, optionFlag)
         </div>
 
         <div class="panel panel-border-narrow" id='INT-Tab' @{"aria-hidden=true".when(showSelected != "inttab")} @{"hidden".when(showSelected != "inttab")}>
-            @intTab(countries, errorMessage)
+            @intTab(intAddrForm, countries)
         </div>
 
         <div class="panel panel-border-narrow" id='BFPO-Tab' @{"aria-hidden=true".when(showSelected != "bfpotab")} @{"hidden".when(showSelected != "bfpotab")}>
-           @if(errorMessage.exists(_.contains(EditBFPODetails() ))) {
-                @bfpoEditTab(bfpoTypedDetails, errorMessage)
+           @if(optionFlag.exists(_.contains(EditBFPODetails() ))) {
+                @bfpoEditTab(bfpoAddrForm)
             } else {
-                @bfpoTab(bfpoTypedDetails, errorMessage)
+                @bfpoTab(bfpoShortAddrForm)
             }
         </div>
 
