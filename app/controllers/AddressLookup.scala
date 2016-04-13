@@ -93,9 +93,9 @@ trait AddressLookupController extends Controller {
   }}
 
 
-  def addressLookup: Action[AnyContent] = Action { implicit request =>
+  def addressLookup: Action[AnyContent] = CSRFAddToken{ Action { implicit request =>
     Ok(address_lookup(addressForm, intAddForm, BFPOAddForm, BFPOEditForm, None, None, "uktab"))
-  }
+  }}
 
   def bfpoContinueButton: Action[AnyContent] = Action.async { implicit request =>
     BFPOAddForm.bindFromRequest().fold(
@@ -151,12 +151,12 @@ trait AddressLookupController extends Controller {
     }
   }
 
-  def addressLookupSelection: Action[AnyContent] = Action.async { implicit request =>
+  def addressLookupSelection: Action[AnyContent] = CSRFAddToken {Action.async { implicit request =>
     addressForm.bindFromRequest().fold(
       formWithErrors => Future.successful(BadRequest(address_lookup(formWithErrors, intAddForm, BFPOAddForm, BFPOEditForm, None, None, "uktab"))),
       address => if (address.hiddenselection.nonEmpty) editButton(address) else continueButton(address)
     )
-  }
+  }}
 
 
   def continueButton(address: AddressData)(implicit request: Request[_]): Future[Result] = {
@@ -278,7 +278,7 @@ object Countries {
 
 sealed abstract class OptionFlag(msg: String)
 
-case class BlankIntAddress() extends OptionFlag("Blank international address")
+//case class BlankIntAddress() extends OptionFlag("Blank international address")
 
 case class NoMatchesFound() extends OptionFlag("No addresses found")
 
