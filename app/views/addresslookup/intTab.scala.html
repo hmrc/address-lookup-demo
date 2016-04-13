@@ -1,4 +1,4 @@
-@(intAddrForm: Form[IntAddData], countries: List[String])(implicit request: Request[_])
+@(intAddrForm: Form[IntAddData], countries: List[String] = Countries.countries)(implicit request: Request[_])
 
 @import services.MyHelpers._
 

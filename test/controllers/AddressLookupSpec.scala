@@ -51,7 +51,7 @@ class AddressLookupSpec extends PlaySpec with Results with OneAppPerSuite {
 
       val intAddForm = Form[IntAddData] {
         mapping("int-country" -> optional(text),
-          "int-address" -> optional(text),
+          "int-address" -> text.verifying("Address was left blank", _.length > 0),
           "hiddentab" -> default(text, "inttab")
         )(IntAddData.apply)(IntAddData.unapply)
       }
@@ -75,7 +75,7 @@ class AddressLookupSpec extends PlaySpec with Results with OneAppPerSuite {
       }
 
 
-      val html = views.html.addresslookup.address_lookup(addressForm, intAddForm, BFPOAddForm,BFPOEditForm, Countries.countries, None, None, "")(
+      val html = views.html.addresslookup.address_lookup(addressForm, intAddForm, BFPOAddForm,BFPOEditForm, None, None, "")(
         FakeRequest().withSession("csrfToken" -> CSRF.SignedTokenProvider.generateToken))
       contentAsString(html) must include("Your Address")
     }
