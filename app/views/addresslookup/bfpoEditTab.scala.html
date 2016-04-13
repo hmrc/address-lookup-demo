@@ -11,14 +11,13 @@
   @helper.checkbox(bfpoAddrForm("hiddentab"),  'value -> "bfpotab", 'checked -> true, '_label -> "" )
 
 
-  @helper.inputText(bfpoAddrForm("BFPO-postcode"), '_label -> "BFPO post code")
-  @helper.inputText(bfpoAddrForm("BFPO-number"), '_label -> "BFPO number")
-  @helper.inputText(bfpoAddrForm("BFPO-service-number"), '_label -> "Service number")
-  @helper.inputText(bfpoAddrForm("BFPO-rank"), '_label -> "Rank")
-  @helper.inputText(bfpoAddrForm("BFPO-name"), '_label ->  "Name")
-  @helper.inputText(bfpoAddrForm("BFPO-unit-regiment-department"), '_label ->  "Unit,Regiment and/or Department")
-  @helper.inputText(bfpoAddrForm("BFPO-operation-name"), '_label ->  "Operation name (if applicable)")
-
+  @helper.inputText(bfpoAddrForm("BFPO-postcode"), 'class -> "form-control", '_label -> "BFPO post code")
+  @helper.inputText(bfpoAddrForm("BFPO-number"), 'class -> "form-control", '_label -> "BFPO number")
+  @helper.inputText(bfpoAddrForm("BFPO-service-number"), 'class -> "form-control", '_label -> "Service number")
+  @helper.inputText(bfpoAddrForm("BFPO-rank"), 'class -> "form-control", '_label -> "Rank")
+  @helper.inputText(bfpoAddrForm("BFPO-name"), 'class -> "form-control", '_label ->  "Name")
+  @helper.inputText(bfpoAddrForm("BFPO-unit-regiment-department"), 'class -> "form-control", '_label ->  "Unit,Regiment and/or Department")
+  @helper.inputText(bfpoAddrForm("BFPO-operation-name"), 'class -> "form-control", '_label ->  "Operation name (if applicable)")
 
 
     <input class="button" type="submit" value="Continue">

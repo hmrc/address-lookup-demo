@@ -82,20 +82,15 @@
     }
 
     @if(optionFlag.exists( _.contains(AddManualEntry() ))) {
-            <div class="form-group">
-                <h2>Amend address</h2>
-                <label class="form-label" for='UK-address-line1'>Address line 1</label>
-                @helper.inputText(ukAddrForm("UK-address-line1"),  'class -> "form-control",  '_label -> ""  )
-                <label class="form-label" for='UK-address-line2'>Address line 2</label>
-                @helper.inputText(ukAddrForm("UK-address-line2"),  'class -> "form-control",  '_label -> ""  )
-                <label class="form-label" for='UK-address-line2'>Address line 3</label>
-                @helper.inputText(ukAddrForm("UK-address-line3"),  'class -> "form-control",  '_label -> ""  )
-                <label class="form-label" for="UK-address-town">Nearest town or city</label>
-                @helper.inputText(ukAddrForm("UK-town"),  'class -> "form-control",  '_label -> ""  )
-                <label class="form-label" for="UK-address-county">County</label>
-                @helper.inputText(ukAddrForm("UK-address-county"),  'class -> "form-control",  '_label -> ""  )
+        <div class="form-group">
+            <h2>Amend address</h2>
+            @helper.inputText(ukAddrForm("UK-address-line1"),  'class -> "form-control", '_name -> "Address line 1" )
+            @helper.inputText(ukAddrForm("UK-address-line2"),  'class -> "form-control",  '_name -> "Address line 2"  )
+            @helper.inputText(ukAddrForm("UK-address-line3"),  'class -> "form-control",  '_name -> "Address line 3"  )
+            @helper.inputText(ukAddrForm("UK-town"),  'class -> "form-control",  '_name -> "Nearest town or city"  )
+            @helper.inputText(ukAddrForm("UK-address-county"),  'class -> "form-control",  '_name -> "County"  )
 
-            </div>
+        </div>
     }
 
     <div class="form-group">
