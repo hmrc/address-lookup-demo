@@ -19,10 +19,11 @@ package controllers
 import play.api.Logger
 import play.api.data._
 import play.api.data.Forms._
-
 import services._
 import play.api.mvc._
+import play.filters.csrf.CSRFAddToken
 import views.html.addresslookup._
+
 import scala.concurrent.Future
 
 object AddressLookup extends AddressLookupController with AddressLookupService with BfpoLookupService
@@ -87,9 +88,9 @@ trait AddressLookupController extends Controller {
 
 
 
-  def start: Action[AnyContent] = Action { implicit request =>
+  def start: Action[AnyContent] = CSRFAddToken {Action { implicit request =>
     Redirect(controllers.routes.AddressLookup.addressLookup)
-  }
+  }}
 
 
   def addressLookup: Action[AnyContent] = Action { implicit request =>
