@@ -22,6 +22,7 @@ import play.api.data.Forms._
 import services._
 import play.api.mvc._
 import play.filters.csrf.CSRFAddToken
+import uk.gov.hmrc.play.frontend.controller.FrontendController
 import views.html.addresslookup._
 
 import scala.concurrent.Future
@@ -40,7 +41,7 @@ case class BFPOAddData(postcode: String, hiddentab: String)
 
 case class BFPOEditData(postcode: String, number: String, serviceNo: String, rank: String, name: String, unitRegDep: String, opName: Option[String], hiddentab: String = "bfpotab")
 
-trait AddressLookupController extends Controller {
+trait AddressLookupController extends FrontendController {
   this: AddressLookupWS with BfpoLookupWS =>
 
   val DefaultTab = "uktab"
