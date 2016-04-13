@@ -11,6 +11,7 @@
 
 
 @helpers.form( controllers.routes.AddressLookup.addressLookupSelection, 'id -> "myForm"  ) {
+    @play.filters.csrf.CSRF.formField
 
     @helper.checkbox(ukAddrForm("hiddenselection"), 'id -> "hiddenselection", 'name -> "hiddenselection", '_label -> "" )
 
