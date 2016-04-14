@@ -1,12 +1,10 @@
-@(intAddrForm: Form[IntAddData], countries: List[String] = Countries.countries)(implicit request: Request[_])
+@(intAddrForm: Form[IntAddrData], countries: List[String] = services.addresslookup.Countries.countries)(implicit request: Request[_])
 
-@import services.MyHelpers._
+@import services.LayoutHelper._
 
 @import uk.gov.hmrc.play.views.html.helpers
 
 @helpers.form(controllers.routes.AddressLookup.intContinueButton) {
-
-    @helper.checkbox(intAddrForm("hiddentab"),  'value -> "inttab", 'checked -> true, '_label -> "" )
 
     @helper.select(intAddrForm("int-country"), countries.map(i => (i, i)).toSeq, '_label -> "Country")
     @helper.textarea(intAddrForm("int-address"), 'rows -> 5, '_label -> "Address")

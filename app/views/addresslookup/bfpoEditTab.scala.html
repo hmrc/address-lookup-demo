@@ -1,15 +1,12 @@
 @(bfpoAddrForm: Form[BFPOEditData])(implicit request: Request[_])
 
 
-@import services.MyHelpers._
+@import services.LayoutHelper._
 
 @import uk.gov.hmrc.play.views.html.helpers
 
 
 @helpers.form(controllers.routes.AddressLookup.bfpoEditButton) {
-
-  @helper.checkbox(bfpoAddrForm("hiddentab"),  'value -> "bfpotab", 'checked -> true, '_label -> "" )
-
 
   @helper.inputText(bfpoAddrForm("BFPO-postcode"), 'class -> "form-control", '_label -> "BFPO post code")
   @helper.inputText(bfpoAddrForm("BFPO-number"), 'class -> "form-control", '_label -> "BFPO number")

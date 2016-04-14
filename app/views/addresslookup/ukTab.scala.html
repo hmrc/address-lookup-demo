@@ -1,6 +1,6 @@
 @(ukAddrForm:Form[AddressData], addressList: Option[List[services.Address]], optionFlag: Option[List[OptionFlag]], maxAddresses: Int = 50)(implicit request: Request[_])
 
-@import services.MyHelpers._
+@import services.LayoutHelper._
 
 @import uk.gov.hmrc.play.views.html.helpers
 
@@ -11,11 +11,8 @@
 
 
 @helpers.form( controllers.routes.AddressLookup.addressLookupSelection, 'id -> "myForm"  ) {
-    @views.html.helper.CSRF.formField
 
     @helper.checkbox(ukAddrForm("hiddenselection"), 'id -> "hiddenselection", 'name -> "hiddenselection", '_label -> "" )
-
-    @helper.checkbox(ukAddrForm("hiddentab"), 'id -> "hiddentab", 'name -> "hiddentab", '_label -> "",  '_value -> ukAddrForm("hiddentab") )
 
     @for( addrX <- addressList) {
         @if(addrX.length > maxAddresses) {

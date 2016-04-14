@@ -1,4 +1,6 @@
-@(ukAddrForm:Form[AddressData], intAddrForm:Form[IntAddData], bfpoShortAddrForm: Form[BFPOAddData], bfpoAddrForm: Form[BFPOEditData], addressList: Option[List[services.Address]], optionFlag: Option[List[OptionFlag]] = None, showSelected:String)(implicit request: Request[_])
+@(ukAddrForm:Form[AddressData], intAddrForm:Form[IntAddrData], bfpoShortAddrForm: Form[BFPOPCodeData], bfpoAddrForm: Form[BFPOEditData], addressList: Option[List[services.Address]], showSelected:services.addresslookup.TabName, optionFlag: Option[List[OptionFlag]] = None)(implicit request: Request[_])
+
+@import services.addresslookup._
 
 <script src="assets/javascripts/vendor/jquery-1.11.0.min.js"></script>
 <script src="assets/javascripts/selection-buttons.js"></script>
@@ -26,31 +28,31 @@
     <fieldset class="inline">
         <div class="form-group" id="location">
             <label class="block-label" data-target="UK-Tab" for="location-UK">
-                <input id="location-UK" type="radio" name="radio-inline-group" value="UK" @{"checked=checked".when(showSelected == "uktab")}>
+                <input id="location-UK" type="radio" name="radio-inline-group" value="UK" @{"checked=checked".when(showSelected == services.addresslookup.UkTab)}>
                 United Kingdom
             </label>
 
             <label class="block-label" data-target="INT-Tab" for="location-international">
-                <input id="location-international" type="radio" name="radio-inline-group" value="INT" @{"checked=checked".when(showSelected == "inttab")}>
+                <input id="location-international" type="radio" name="radio-inline-group" value="INT" @{"checked=checked".when(showSelected == services.addresslookup.IntTab)}>
                 International
             </label>
 
             <label class="block-label" data-target="BFPO-Tab" for="location-BFPO">
-                <input id="location-BFPO" type="radio" name="radio-inline-group" value="BFPO" @{"checked=checked".when(showSelected == "bfpotab")}>
+                <input id="location-BFPO" type="radio" name="radio-inline-group" value="BFPO" @{"checked=checked".when(showSelected == services.addresslookup.BFPOTab)}>
                 BFPO
             </label>
         </div>
 
 
-        <div class="panel panel-border-narrow" id='UK-Tab' @{"aria-hidden=true".when(showSelected != "uktab")} @{"hidden".when(showSelected != "uktab")}>
+        <div class="panel panel-border-narrow" id='UK-Tab' @{"aria-hidden=true".when(showSelected != services.addresslookup.UkTab)} @{"hidden".when(showSelected != services.addresslookup.UkTab)}>
             @ukTab(ukAddrForm, addressList, optionFlag)
         </div>
 
-        <div class="panel panel-border-narrow" id='INT-Tab' @{"aria-hidden=true".when(showSelected != "inttab")} @{"hidden".when(showSelected != "inttab")}>
+        <div class="panel panel-border-narrow" id='INT-Tab' @{"aria-hidden=true".when(showSelected != services.addresslookup.IntTab)} @{"hidden".when(showSelected != services.addresslookup.IntTab)}>
             @intTab(intAddrForm)
         </div>
 
-        <div class="panel panel-border-narrow" id='BFPO-Tab' @{"aria-hidden=true".when(showSelected != "bfpotab")} @{"hidden".when(showSelected != "bfpotab")}>
+        <div class="panel panel-border-narrow" id='BFPO-Tab' @{"aria-hidden=true".when(showSelected != services.addresslookup.BFPOTab)} @{"hidden".when(showSelected != services.addresslookup.BFPOTab)}>
            @if(optionFlag.exists(_.contains(EditBFPODetails() ))) {
                 @bfpoEditTab(bfpoAddrForm)
             } else {
