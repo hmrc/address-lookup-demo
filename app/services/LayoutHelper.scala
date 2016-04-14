@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
-package controllers
+package services
 
-object Template extends AssetsBuilder
+object LayoutHelper {
+  import views.html.helper.FieldConstructor
+  implicit val myFields = FieldConstructor(views.html.addresslookup.defaultAddressLookupFieldConstructor.f)
+}
