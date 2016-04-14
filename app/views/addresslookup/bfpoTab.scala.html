@@ -1,4 +1,4 @@
-@(bfpoShortAddrForm: Form[BFPOAddData])(implicit request: Request[_])
+@(bfpoShortAddrForm: Form[BFPOPCodeData])(implicit request: Request[_])
 
 @import services.MyHelpers._
 
@@ -6,8 +6,6 @@
 
 
 @helpers.form(controllers.routes.AddressLookup.bfpoContinueButton) {
-
-  @helper.checkbox(bfpoShortAddrForm("hiddentab"),  'value -> "bfpotab", 'checked -> true, '_label -> "" )
 
   @helper.inputText(bfpoShortAddrForm("BFPO-postcode"), 'class -> "form-control", 'maxlength -> "8", '_label -> "BFPO post code")
 

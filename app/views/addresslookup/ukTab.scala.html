@@ -15,8 +15,6 @@
 
     @helper.checkbox(ukAddrForm("hiddenselection"), 'id -> "hiddenselection", 'name -> "hiddenselection", '_label -> "" )
 
-    @helper.checkbox(ukAddrForm("hiddentab"), 'id -> "hiddentab", 'name -> "hiddentab", '_label -> "",  '_value -> ukAddrForm("hiddentab") )
-
     @for( addrX <- addressList) {
         @if(addrX.length > maxAddresses) {
             <div class="form-group">

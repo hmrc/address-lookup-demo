@@ -28,6 +28,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.test.Helpers._
 import play.filters.csrf.CSRF
+import services.addresslookup.UkTab
 
 class AddressLookupSpec extends PlaySpec with Results with OneAppPerSuite {
 
@@ -49,17 +50,15 @@ class AddressLookupSpec extends PlaySpec with Results with OneAppPerSuite {
         )(AddressData.apply)(AddressData.unapply)
       }
 
-      val intAddForm = Form[IntAddData] {
+      val intAddForm = Form[IntAddrData] {
         mapping("int-country" -> optional(text),
-          "int-address" -> text.verifying("Address was left blank", _.length > 0),
-          "hiddentab" -> default(text, "inttab")
-        )(IntAddData.apply)(IntAddData.unapply)
+          "int-address" -> text.verifying("Address was left blank", _.length > 0)
+        )(IntAddrData.apply)(IntAddrData.unapply)
       }
 
-      val BFPOAddForm = Form[BFPOAddData](
-        mapping("BFPO-postcode" -> text.verifying( "Post code was left blank", _.length > 0),
-          "hiddentab" -> default(text, "bfpotab")
-        )(BFPOAddData.apply)(BFPOAddData.unapply)
+      val BFPOAddForm = Form[BFPOPCodeData](
+        mapping("BFPO-postcode" -> text.verifying( "Post code was left blank", _.length > 0)
+        )(BFPOPCodeData.apply)(BFPOPCodeData.unapply)
       )
 
       val BFPOEditForm = Form[BFPOEditData] {
@@ -69,13 +68,12 @@ class AddressLookupSpec extends PlaySpec with Results with OneAppPerSuite {
           "BFPO-rank" -> text.verifying( "Rank was left blank", _.length > 0),
           "BFPO-name" -> text.verifying( "A valid Name is required", _.length > 0),
           "BFPO-unit-regiment-department" -> text.verifying( "A valid Unit,Regiment and/or Department is required", _.length > 0),
-          "BFPO-operation-name" -> optional(text),
-          "hiddentab" -> default(text, "bfpotab")
+          "BFPO-operation-name" -> optional(text)
         )(BFPOEditData.apply)(BFPOEditData.unapply)
       }
 
 
-      val html = views.html.addresslookup.address_lookup(addressForm, intAddForm, BFPOAddForm,BFPOEditForm, None, None, "")(
+      val html = views.html.addresslookup.address_lookup(addressForm, intAddForm, BFPOAddForm,BFPOEditForm, None, UkTab)(
         FakeRequest().withSession("csrfToken" -> CSRF.SignedTokenProvider.generateToken))
       contentAsString(html) must include("Your Address")
     }
@@ -238,7 +236,6 @@ class AddressLookupSpec extends PlaySpec with Results with OneAppPerSuite {
       val result: Future[Result] = controller.bfpoEditButton().apply(request)
 
       val bodyText: String = contentAsString(result)
-//      bodyText must include("Application complete")
       bodyText must include("BFPO post code")
       bodyText must include("BF1 3AA")
     }
@@ -251,10 +248,9 @@ class AddressLookupSpec extends PlaySpec with Results with OneAppPerSuite {
       val result: Future[Result] = controller.bfpoContinueButton().apply(request)
 
       val bodyText: String = contentAsString(result)
-//      bodyText must include("Application complete")
       bodyText must include("BFPO post code")
       bodyText must include("Invalid BFPO postcode found")
-//      bodyText must include("AA1 1ZZ")
+      bodyText must include("AA1 1ZZ")
     }
 
 
@@ -319,6 +315,5 @@ trait DummyWSBFPOWithInvalidPostCode extends AddressLookupWS with DummyBfpoWS {
 
   override def findBfpo(postcode: String): Future[Either[Status, Option[List[BfpoDB]]]] = {
     Future.successful(Left(BadRequest))
-//    Future.successful(Right(Some(List[services.BfpoDB](BfpoDB(Some("Op Test"), "123", "AA1 1ZZ")))))
   }
 }

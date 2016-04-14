@@ -8,9 +8,6 @@
 
 @helpers.form(controllers.routes.AddressLookup.bfpoEditButton) {
 
-  @helper.checkbox(bfpoAddrForm("hiddentab"),  'value -> "bfpotab", 'checked -> true, '_label -> "" )
-
-
   @helper.inputText(bfpoAddrForm("BFPO-postcode"), 'class -> "form-control", '_label -> "BFPO post code")
   @helper.inputText(bfpoAddrForm("BFPO-number"), 'class -> "form-control", '_label -> "BFPO number")
   @helper.inputText(bfpoAddrForm("BFPO-service-number"), 'class -> "form-control", '_label -> "Service number")
