@@ -2,6 +2,8 @@
 
 ->          /template                                                    template.Routes
 
+GET        /start                              controllers.AddressLookup.start
+
 GET        /address-lookup                    controllers.AddressLookup.addressLookup
 
 POST        /address-lookup-selection          controllers.AddressLookup.addressLookupSelection

@@ -85,6 +85,12 @@ trait AddressLookupController extends FrontendController {
   }
 
 
+  def start: Action[AnyContent] = CSRFAddToken {
+    Action { implicit request =>
+      Redirect(controllers.routes.AddressLookup.addressLookup)
+    }
+  }
+
 
   def addressLookup: Action[AnyContent] = CSRFAddToken {
     Action { implicit request =>
