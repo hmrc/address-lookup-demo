@@ -1,4 +1,4 @@
-@(ukAddrForm:Form[AddressData], addressList: Option[List[services.Address]], optionFlag: Option[List[OptionFlag]], maxAddresses: Int = 50)(implicit request: Request[_])
+@(ukAddrForm:Form[AddressData], addressList: Option[List[services.Address]], optionFlag: Option[List[OptionFlag]], maxAddresses: Int = 20)(implicit request: Request[_])
 
 @import services.LayoutHelper._
 
@@ -19,8 +19,8 @@
         @if(addrX.length > maxAddresses) {
             <div class="form-group">
                 <div class="warning-box">
-                    <h2>Over @maxAddresses addresses found</h2>
-                    <p>Please enter a house name or number.</p>
+                    <h2>More than @maxAddresses addresses found</h2>
+                    <p>please enter the first line of your address.</p>
                 </div>
             </div>
         }
@@ -36,7 +36,7 @@
     }
 
     <div class="form-group">
-        @helper.inputText(ukAddrForm("house-name-number"),  'class -> "form-control",  '_label -> "House name or number" )
+        @helper.inputText(ukAddrForm("house-name-number"),  'class -> "form-control",  '_label -> "Building name or number" )
 
         <label class="form-checkbox" for="no-fixed-address">
             <input id="no-fixed-address" name="no-fixed-address" type="checkbox" value="true">

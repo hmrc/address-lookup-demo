@@ -114,7 +114,7 @@ class AddressLookupSpec extends PlaySpec with Results with OneAppPerSuite {
       bodyText must include("AA1AA1")
     }
 
-    "A postcode with >50 addresses will display an error message" in {
+    "A postcode with >20 addresses will display an error message" in {
       val controller = new AddressLookupController with Data60ItemsWS
       val request = FakeRequest(GET,
         "/address-lookup-demo/address-lookup-selection?UK-postcode=AA1AA1"
@@ -122,7 +122,7 @@ class AddressLookupSpec extends PlaySpec with Results with OneAppPerSuite {
       val result = controller.addressLookupSelection().apply(request)
 
       val bodyText: String = contentAsString(result)
-      bodyText must include("Over 50 addresses found")
+      bodyText must include("More than 20 addresses found")
     }
 
     "A postcode with 'random' data will display an error message" in {
