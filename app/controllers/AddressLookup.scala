@@ -20,7 +20,7 @@ import play.api.data._
 import play.api.data.Forms._
 import services._
 import play.api.mvc._
-import play.filters.csrf.CSRFAddToken
+//import play.filters.csrf.CSRFAddToken
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 import views.html.addresslookup._
 
@@ -35,7 +35,7 @@ case class AddressData(
                         editedCounty: Option[String]
                       )
 
-case class IntAddrData(country: Option[String], address: String)
+case class IntAddrData(country: String, address: String)
 
 case class BFPOPCodeData(postcode: String)
 
@@ -63,7 +63,7 @@ trait AddressLookupController extends FrontendController {
   }
 
   val intAddForm = Form[IntAddrData] {
-    mapping("int-country" -> optional(text),
+    mapping("int-country" -> text.verifying("Country was left blank", _.nonEmpty),
       "int-address" -> text.verifying("Address was left blank", _.nonEmpty)
     )(IntAddrData.apply)(IntAddrData.unapply)
   }
@@ -85,18 +85,16 @@ trait AddressLookupController extends FrontendController {
   }
 
 
-  def start: Action[AnyContent] = CSRFAddToken {
-    Action { implicit request =>
+  def start: Action[AnyContent] = Action { implicit request =>
       Redirect(controllers.routes.AddressLookup.addressLookup)
     }
-  }
 
 
-  def addressLookup: Action[AnyContent] = CSRFAddToken {
-    Action { implicit request =>
+
+  def addressLookup: Action[AnyContent] = Action { implicit request =>
       Ok(address_lookup(addressForm, intAddForm, BFPOAddForm, BFPOEditForm, None, UkTab))
     }
-  }
+
 
   def bfpoContinueButton: Action[AnyContent] = Action.async { implicit request =>
     BFPOAddForm.bindFromRequest().fold(
@@ -150,14 +148,13 @@ trait AddressLookupController extends FrontendController {
     }
   }
 
-  def addressLookupSelection: Action[AnyContent] = CSRFAddToken {
-    Action.async { implicit request =>
+  def addressLookupSelection: Action[AnyContent] = Action.async { implicit request =>
       addressForm.bindFromRequest().fold(
         formWithErrors => Future.successful(BadRequest(address_lookup(formWithErrors, intAddForm, BFPOAddForm, BFPOEditForm, None, UkTab))),
         address => if (address.hiddenselection.nonEmpty) editButton(address) else continueButton(address)
       )
     }
-  }
+
 
 
   private def continueButton(address: AddressData)(implicit request: Request[_]): Future[Result] = {

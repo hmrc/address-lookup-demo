@@ -51,7 +51,7 @@ class AddressLookupSpec extends PlaySpec with Results with OneAppPerSuite {
       }
 
       val intAddForm = Form[IntAddrData] {
-        mapping("int-country" -> optional(text),
+        mapping("int-country" -> text,
           "int-address" -> text.verifying("Address was left blank", _.length > 0)
         )(IntAddrData.apply)(IntAddrData.unapply)
       }

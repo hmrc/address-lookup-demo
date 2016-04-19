@@ -4,9 +4,66 @@
 
 @import uk.gov.hmrc.play.views.html.helpers
 
+
+<script src="assets/javascripts/vendor/jquery-ui.min.js"></script>
+<script src="assets/javascripts/vendor/jquery.select-to-autocomplete.js"></script>
+<script>
+        (function($){
+            $(function(){
+                $('select').selectToAutocomplete();
+            });
+        })(jQuery);
+</script>
+<link rel="stylesheet" href="assets/stylesheets/jquery-ui.css">
+<style>
+.ui-autocomplete {
+    padding: 0;
+    list-style: none;
+    background-color: #fff;
+    width: 218px;
+    border: 1px solid #B0BECA;
+    max-height: 350px;
+    overflow-x: hidden;
+}
+.ui-autocomplete .ui-menu-item {
+    border-top: 1px solid #B0BECA;
+    display: block;
+    padding: 4px 6px;
+    color: #353D44;
+    cursor: pointer;
+}
+.ui-autocomplete .ui-menu-item:first-child {
+    border-top: none;
+}
+.ui-autocomplete .ui-menu-item.ui-state-focus {
+    background-color: #D5E5F4;
+    color: #161A1C;
+}
+</style>
+
 @helpers.form(controllers.routes.AddressLookup.intContinueButton) {
 
-    @helper.select(intAddrForm("int-country"), countries.map(i => (i, i)).toSeq, '_label -> "Country")
+
+    <dl  class=' @if(intAddrForm("int-country").hasErrors) {error}'  >
+
+    <label class="form-label-bold" for="int-country">Country</label>
+
+        @intAddrForm("int-country").errors.map { err =>
+            <dd class="form-hint">@err.message</dd>
+        }
+
+
+        <select name="int-country" id="int-country" autofocus="autofocus" autocorrect="off" autocomplete="off" >
+        @for( c <- services.addresslookup.Countries2.countries ) {
+            <option value='@c.name' data-alternative-spellings='@{c.alternative}' data-relevancy-booster='@{c.relevane.getOrElse("1.0")}' @{"selected=selected".when(intAddrForm("int-country").value == Some(c.name) )} >@c.name</option>
+        }
+    </select>
+
+    </dl>
+
     @helper.textarea(intAddrForm("int-address"), 'rows -> 5, '_label -> "Address")
     <input class="button" type="submit" value="Continue">
+
+
+
 }
