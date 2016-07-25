@@ -14,7 +14,7 @@
             });
         })(jQuery);
 </script>
-<link rel="stylesheet" href="assets/stylesheets/jquery-ui.css">
+<link rel="stylesheet" href="assets/stylesheets/jquery-ui.css"/>
 <style>
 .ui-autocomplete {
     padding: 0;
@@ -55,7 +55,7 @@
 
         <select name="int-country" id="int-country" autofocus="autofocus" autocorrect="off" autocomplete="off" >
         @for( c <- services.addresslookup.Countries2.countries ) {
-            <option value='@c.name' data-alternative-spellings='@{c.alternative}' data-relevancy-booster='@{c.relevane.getOrElse("1.0")}' @{"selected=selected".when(intAddrForm("int-country").value == Some(c.name) )} >@c.name</option>
+            <option value='@c.name' data-alternative-spellings='@{c.alternative}' data-relevancy-booster='@{c.relevance.getOrElse("1.0")}' @{"selected=selected".when(intAddrForm("int-country").value == Some(c.name) )} >@c.name</option>
         }
     </select>
 

@@ -16,10 +16,11 @@
 
 package controllers
 
-import play.api.data._
 import play.api.data.Forms._
-import services._
+import play.api.data._
 import play.api.mvc._
+import services._
+
 //import play.filters.csrf.CSRFAddToken
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 import views.html.addresslookup._
@@ -86,14 +87,13 @@ trait AddressLookupController extends FrontendController {
 
 
   def start: Action[AnyContent] = Action { implicit request =>
-      Redirect(controllers.routes.AddressLookup.addressLookup)
-    }
-
+    Redirect(controllers.routes.AddressLookup.addressLookup)
+  }
 
 
   def addressLookup: Action[AnyContent] = Action { implicit request =>
-      Ok(address_lookup(addressForm, intAddForm, BFPOAddForm, BFPOEditForm, None, UkTab))
-    }
+    Ok(address_lookup(addressForm, intAddForm, BFPOAddForm, BFPOEditForm, None, UkTab))
+  }
 
 
   def bfpoContinueButton: Action[AnyContent] = Action.async { implicit request =>
@@ -149,12 +149,11 @@ trait AddressLookupController extends FrontendController {
   }
 
   def addressLookupSelection: Action[AnyContent] = Action.async { implicit request =>
-      addressForm.bindFromRequest().fold(
-        formWithErrors => Future.successful(BadRequest(address_lookup(formWithErrors, intAddForm, BFPOAddForm, BFPOEditForm, None, UkTab))),
-        address => if (address.hiddenselection.nonEmpty) editButton(address) else continueButton(address)
-      )
-    }
-
+    addressForm.bindFromRequest().fold(
+      formWithErrors => Future.successful(BadRequest(address_lookup(formWithErrors, intAddForm, BFPOAddForm, BFPOEditForm, None, UkTab))),
+      address => if (address.hiddenselection.nonEmpty) editButton(address) else continueButton(address)
+    )
+  }
 
 
   private def continueButton(address: AddressData)(implicit request: Request[_]): Future[Result] = {

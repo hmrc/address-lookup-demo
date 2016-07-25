@@ -18,10 +18,10 @@ package services
 
 import com.typesafe.config.ConfigFactory
 import play.api.http.Status._
+import play.api.libs.functional.syntax._
 import play.api.libs.json.{JsPath, Reads}
 import play.api.libs.ws.WS
 import play.api.mvc.Results._
-import play.api.libs.functional.syntax._
 
 import scala.concurrent.Future
 
@@ -33,11 +33,12 @@ trait AddressLookupWS {
 trait AddressLookupService extends AddressLookupWS {
 
   import play.api.Play.current
+
   import scala.concurrent.ExecutionContext.Implicits.global
 
   private lazy val conf = ConfigFactory.load()
-  private lazy val lookupServer = conf.getString("address-lookup-server")
-  private lazy val url = s"http://$lookupServer/uk/addresses"
+  private lazy val lookupServer = conf.getString("addressLookup.server")
+  private lazy val url = s"$lookupServer/uk/addresses"
 
 
   implicit val addrReader: Reads[Address] = (
@@ -60,11 +61,10 @@ trait AddressLookupService extends AddressLookupWS {
           case err =>
             Left(ServiceUnavailable)
         }
-      case response if response.status == BAD_REQUEST =>
-        Left(BadRequest)
 
-      case err =>
-        Left(ServiceUnavailable)
+      case response if response.status == BAD_REQUEST => Left(BadRequest)
+
+      case err => Left(ServiceUnavailable)
     }
   }
 }

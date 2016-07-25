@@ -38,8 +38,8 @@ trait BfpoLookupService extends BfpoLookupWS {
   import scala.concurrent.ExecutionContext.Implicits.global
 
   private lazy val conf = ConfigFactory.load()
-  private lazy val lookupServer1 = conf.getString("address-lookup-server")
-  private lazy val url = s"http://$lookupServer1/bfpo/addresses"
+  private lazy val lookupServer1 = conf.getString("addressLookup.server")
+  private lazy val url = s"$lookupServer1/bfpo/addresses"
 
   implicit val bfpoReader: Reads[BfpoDB] = (
     (JsPath \ "opName").readNullable[String] and
@@ -59,8 +59,8 @@ trait BfpoLookupService extends BfpoLookupWS {
             bfpoList
           case err => Left(ServiceUnavailable)
         }
-      case response if response.status == BAD_REQUEST =>
-        Left(BadRequest)
+
+      case response if response.status == BAD_REQUEST => Left(BadRequest)
 
       case _ => Left(ServiceUnavailable)
     }
