@@ -1,3 +1,19 @@
+@*
+* Copyright 2016 HM Revenue & Customs
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*@
+
 @(ukAddrForm:AddressData, noFixedAddress:Boolean)(implicit request: Request[_])
 
 <script src="assets/vendor/jquery-1.11.0.min.js"></script>
@@ -5,13 +21,6 @@
 <script src="assets/redirect.js"></script>
 <script src="assets/application.js"></script>
 <link href="assets/style.css" rel="stylesheet" type="text/css" />
-
-<div class="phase-banner-alpha">
-    <p>
-        <strong class="phase-tag">ALPHA</strong>
-        <span>This is a new service – your <a href="#">feedback</a> will help us to improve it.</span>
-    </p>
-</div>
 
 @main_template(title = "Address lookup demo", bodyClasses = None) {
 

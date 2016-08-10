@@ -1,6 +1,22 @@
+@*
+* Copyright 2016 HM Revenue & Customs
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*@
+
 @(ukAddrForm:Form[AddressData], intAddrForm:Form[IntAddrData], bfpoShortAddrForm: Form[BFPOPCodeData], bfpoAddrForm: Form[BFPOEditData], addressList: Option[List[services.Address]], showSelected:services.addresslookup.TabName, optionFlag: Option[List[OptionFlag]] = None)(implicit request: Request[_])
 
-@import services.addresslookup._
+@main_template(title = "Address lookup", bodyClasses = None) {
 
 <script src="assets/vendor/jquery-1.11.0.min.js"></script>
 <script src="assets/selection-buttons.js"></script>
@@ -8,23 +24,12 @@
 <script src="assets/application.js"></script>
 <link href="assets/style.css" rel="stylesheet" type="text/css" />
 
-<div class="phase-banner-alpha">
-    <p>
-        <strong class="phase-tag">ALPHA</strong>
-        <span>This is a new service – your <a href="#">feedback</a> will help us to improve it.</span>
-    </p>
-</div>
-
-@main_template(title = "Address lookup demo", bodyClasses = None) {
-
 <div>
     <h1 class="heading-xlarge">Your Address</h1>
 
+    <legend class="visuallyhidden">Choose your location</legend>
 
-        <legend class="visuallyhidden">Choose your location</legend>
-
-
-        <label class="form-label-bold" for="location">Choose your location</label>
+    <label class="form-label-bold" for="location">Choose your location</label>
     <fieldset class="inline">
         <div class="form-group" id="location">
             <label class="block-label" data-target="UK-Tab" for="location-UK">
@@ -44,23 +49,27 @@
         </div>
 
 
-        <div class="panel panel-border-narrow" id='UK-Tab' @{"aria-hidden=true".when(showSelected != services.addresslookup.UkTab)} @{"hidden".when(showSelected != services.addresslookup.UkTab)}>
+        <div class="panel panel-border-narrow" id='UK-Tab'
+            @{"aria-hidden=true".when(showSelected != services.addresslookup.UkTab)}
+            @{"hidden".when(showSelected != services.addresslookup.UkTab)}>
             @ukTab(ukAddrForm, addressList, optionFlag)
         </div>
 
-        <div class="panel panel-border-narrow" id='INT-Tab' @{"aria-hidden=true".when(showSelected != services.addresslookup.IntTab)} @{"hidden".when(showSelected != services.addresslookup.IntTab)}>
+        <div class="panel panel-border-narrow" id='INT-Tab'
+            @{"aria-hidden=true".when(showSelected != services.addresslookup.IntTab)}
+            @{"hidden".when(showSelected != services.addresslookup.IntTab)}>
             @intTab(intAddrForm)
         </div>
 
-        <div class="panel panel-border-narrow" id='BFPO-Tab' @{"aria-hidden=true".when(showSelected != services.addresslookup.BFPOTab)} @{"hidden".when(showSelected != services.addresslookup.BFPOTab)}>
-           @if(optionFlag.exists(_.contains(EditBFPODetails() ))) {
+        <div class="panel panel-border-narrow" id='BFPO-Tab'
+            @{"aria-hidden=true".when(showSelected != services.addresslookup.BFPOTab)}
+            @{"hidden".when(showSelected != services.addresslookup.BFPOTab)}>
+            @if(optionFlag.exists(_.contains(EditBFPODetails() ))) {
                 @bfpoEditTab(bfpoAddrForm)
             } else {
                 @bfpoTab(bfpoShortAddrForm)
             }
         </div>
-
-
     </fieldset>
 
 </div>
