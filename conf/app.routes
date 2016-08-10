@@ -2,6 +2,7 @@
 
 ->          /template                                                    template.Routes
 
+GET        /                                  controllers.AddressLookup.start
 GET        /start                             controllers.AddressLookup.start
 
 GET        /address-lookup                    controllers.AddressLookup.addressLookup
@@ -12,7 +13,4 @@ POST       /address-lookup-bfpo-selection     controllers.AddressLookup.bfpoCont
 POST       /address-lookup-bfpo-edit          controllers.AddressLookup.bfpoEditButton
 
 GET        /assets/*file                      controllers.Assets.at(path="/public", file)
-
-
-
 
