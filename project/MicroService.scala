@@ -51,24 +51,22 @@ trait MicroService {
   lazy val microservice = Project(appName, file("."))
     .enablePlugins(plugins : _*)
     .settings(playSettings : _*)
-//    .settings(version := appVersion)
     .settings(scalaSettings: _*)
-    .settings(scalaVersion := "2.11.7")
+    .settings(scalaVersion := "2.11.8")
     .settings(publishingSettings: _*)
+    .settings(scoverageSettings: _*)
     .settings(defaultSettings(): _*)
     .settings(
       targetJvm := "jvm-1.8",
-//      shellPrompt := ShellPrompt(appVersion),
       libraryDependencies ++= appDependencies,
       parallelExecution in Test := false,
       fork in Test := false,
       retrieveManaged := true
     )
-    .settings(Repositories.playPublishingSettings : _*)
+    .settings(Repositories.playPublishingSettings: _*)
     .configs(IntegrationTest)
     .settings(inConfig(IntegrationTest)(Defaults.itSettings): _*)
 //      .settings(coverageExcludedPackages  := """views\..*;controllers\..*Reverse.*;controllers\..*javascript.*;controllers\..*ref.*;Routes.*""")
-    .settings(playSettings ++ scoverageSettings : _*)
     .settings(
       Keys.fork in IntegrationTest := false,
       unmanagedSourceDirectories in IntegrationTest <<= (baseDirectory in IntegrationTest)(base => Seq(base / "it")),

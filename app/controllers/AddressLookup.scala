@@ -87,7 +87,7 @@ trait AddressLookupController extends FrontendController {
 
 
   def start: Action[AnyContent] = Action { implicit request =>
-    Redirect(controllers.routes.AddressLookup.addressLookup)
+    Redirect(controllers.routes.AddressLookup.addressLookup())
   }
 
 
