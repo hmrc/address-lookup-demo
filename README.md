@@ -3,7 +3,7 @@
 
 [![Build Status](https://travis-ci.org/hmrc/address-lookup-demo.svg?branch=master)](https://travis-ci.org/hmrc/address-lookup-demo) [ ![Download](https://api.bintray.com/packages/hmrc/releases/address-lookup-demo/images/download.svg) ](https://bintray.com/hmrc/releases/address-lookup-demo/_latestVersion)
 
-This is a placeholder README.md for a new repository
+This project has been superseded by [address-lookup-frontend](https://github.com/hmrc/address-lookup-frontend).
 
 ### License
 
