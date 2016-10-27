@@ -14,7 +14,7 @@
 * limitations under the License.
 *@
 
-@(ukAddrForm:Form[AddressData], intAddrForm:Form[IntAddrData], bfpoShortAddrForm: Form[BFPOPCodeData], bfpoAddrForm: Form[BFPOEditData], addressList: Option[List[services.Address]], showSelected:services.addresslookup.TabName, optionFlag: Option[List[OptionFlag]] = None)(implicit request: Request[_])
+@(ukAddrForm:Form[AddressData], intAddrForm:Form[IntAddrData], bfpoShortAddrForm: Form[BFPOPCodeData], bfpoAddrForm: Form[BFPOEditData], addressList: Option[List[services.Address]], showSelected:services.addresslookup.TabName, optionFlag: Option[List[OptionFlag]] = None)(implicit request: Request[_], messages: Messages)
 
 @main_template(title = "Address lookup", bodyClasses = None) {
 

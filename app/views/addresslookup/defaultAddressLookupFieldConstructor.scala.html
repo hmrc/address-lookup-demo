@@ -20,14 +20,14 @@
 
   @if(elements.hasName) {
 
-    <dt><label class="form-label" for="@elements.id">@elements.name(elements.lang)</label></dt>
+    <dt><label class="form-label" for="@elements.id">@elements.name</label></dt>
   } else {
-    <dt><label class="form-label-bold" for="@elements.id">@elements.label(elements.lang)</label></dt>
+    <dt><label class="form-label-bold" for="@elements.id">@elements.label</label></dt>
   }
-  @elements.errors(elements.lang).map { error =>
+  @elements.errors.map { error =>
     <dd class="form-hint">@error</dd>
   }
-  @elements.infos(elements.lang).map { info =>
+  @elements.infos.map { info =>
     <dd class="error-message">@info</dd>
   }
   <dd>@elements.input</dd>

@@ -14,7 +14,7 @@
 * limitations under the License.
 *@
 
-@(intAddrForm: Form[IntAddrData], countries: List[String] = services.addresslookup.Countries.countries)(implicit request: Request[_])
+@(intAddrForm: Form[IntAddrData], countries: List[String] = services.addresslookup.Countries.countries)(implicit request: Request[_], messages: Messages)
 
 @import services.LayoutHelper._
 

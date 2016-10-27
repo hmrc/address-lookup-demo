@@ -24,6 +24,8 @@ import services._
 //import play.filters.csrf.CSRFAddToken
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 import views.html.addresslookup._
+import play.api.Play.current
+import play.api.i18n.Messages.Implicits._
 
 import scala.concurrent.Future
 
@@ -92,7 +94,7 @@ trait AddressLookupController extends FrontendController {
 
 
   def addressLookup: Action[AnyContent] = Action { implicit request =>
-    Ok(address_lookup(addressForm, intAddForm, BFPOAddForm, BFPOEditForm, None, UkTab))
+    Ok(address_lookup(addressForm, intAddForm, BFPOAddForm, BFPOEditForm, None, UkTab)(request, applicationMessages))
   }
 
 
@@ -108,7 +110,8 @@ trait AddressLookupController extends FrontendController {
               case _ => BFPOEditForm
             }
 
-            Ok(address_lookup(addressForm, intAddForm, BFPOAddForm.fill(address), updateForm, None, BFPOTab, Some(List(EditBFPODetails()))))
+            Ok(address_lookup(addressForm, intAddForm, BFPOAddForm.fill(address), updateForm, None, BFPOTab,
+              Some(List(EditBFPODetails())))(request, applicationMessages))
           case err =>
             BadRequest(
               address_lookup(addressForm, intAddForm, BFPOAddForm.fill(address).withError("BFPO-postcode", "Invalid BFPO postcode found"),
@@ -121,7 +124,8 @@ trait AddressLookupController extends FrontendController {
 
   def bfpoEditButton: Action[AnyContent] = Action { implicit request =>
     BFPOEditForm.bindFromRequest().fold(
-      formWithErrors => BadRequest(address_lookup(addressForm, intAddForm, BFPOAddForm, formWithErrors, None, BFPOTab, Some(List(EditBFPODetails())))),
+      formWithErrors => BadRequest(address_lookup(addressForm, intAddForm, BFPOAddForm, formWithErrors, None, BFPOTab,
+        Some(List(EditBFPODetails())))(request, applicationMessages)),
       address => Ok(bfpoConfirmationPage(address))
 
     )
@@ -130,7 +134,8 @@ trait AddressLookupController extends FrontendController {
 
   def intContinueButton: Action[AnyContent] = Action { implicit request =>
     intAddForm.bindFromRequest().fold(
-      formWithErrors => BadRequest(address_lookup(addressForm, formWithErrors, BFPOAddForm, BFPOEditForm, None, IntTab)),
+      formWithErrors => BadRequest(address_lookup(addressForm, formWithErrors, BFPOAddForm, BFPOEditForm, None,
+        IntTab)(request, applicationMessages)),
       address => Ok(intConfirmationPage(address))
     )
   }
@@ -150,7 +155,8 @@ trait AddressLookupController extends FrontendController {
 
   def addressLookupSelection: Action[AnyContent] = Action.async { implicit request =>
     addressForm.bindFromRequest().fold(
-      formWithErrors => Future.successful(BadRequest(address_lookup(formWithErrors, intAddForm, BFPOAddForm, BFPOEditForm, None, UkTab))),
+      formWithErrors => Future.successful(BadRequest(address_lookup(formWithErrors, intAddForm, BFPOAddForm,
+        BFPOEditForm, None, UkTab)(request, applicationMessages))),
       address => if (address.hiddenselection.nonEmpty) editButton(address) else continueButton(address)
     )
   }
@@ -178,7 +184,7 @@ trait AddressLookupController extends FrontendController {
     } else if (address.postcode.isEmpty) {
       Future.successful(
         BadRequest(address_lookup(addressForm.fill(address).withError("UK-postcode", "A post code is required"),
-          intAddForm, BFPOAddForm, BFPOEditForm, None, UkTab)))
+          intAddForm, BFPOAddForm, BFPOEditForm, None, UkTab)(request, applicationMessages)))
     } else {
       // list addresses
       findAddresses(address.postcode, address.nameNo) map {
@@ -204,7 +210,7 @@ trait AddressLookupController extends FrontendController {
           }
           Ok(address_lookup(
             updatedDetails, intAddForm, BFPOAddForm, BFPOEditForm, addressList, UkTab,
-            if (addressList.exists(_.isEmpty)) Some(List(NoMatchesFound())) else None))
+            if (addressList.exists(_.isEmpty)) Some(List(NoMatchesFound())) else None)(request, applicationMessages))
         case Left(_) =>
           BadRequest(
             address_lookup(addressForm.fill(address).withError("UK-postcode", "The postcode was unrecognised"),
@@ -229,13 +235,13 @@ trait AddressLookupController extends FrontendController {
           address.editedCounty
 
         ))
-        Ok(address_lookup(updatedAddr, intAddForm, BFPOAddForm, BFPOEditForm, None, UkTab, Some(List(AddManualEntry()))))
+        Ok(address_lookup(updatedAddr, intAddForm, BFPOAddForm, BFPOEditForm, None,
+          UkTab, Some(List(AddManualEntry())))(request, applicationMessages))
       }
-    else Future.successful(Ok(address_lookup(addressForm, intAddForm, BFPOAddForm, BFPOEditForm, None, UkTab, Some(List(AddManualEntry())))))
+    else Future.successful(Ok(address_lookup(addressForm, intAddForm, BFPOAddForm, BFPOEditForm, None, UkTab,
+      Some(List(AddManualEntry())))(request, applicationMessages)))
   }
-
 }
-
 
 sealed abstract class OptionFlag(msg: String)
 

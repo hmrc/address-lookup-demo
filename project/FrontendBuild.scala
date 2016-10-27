@@ -28,17 +28,17 @@ object FrontendBuild extends Build with MicroService {
 
 private object AppDependencies {
 
-  import play.PlayImport._
+  import play.sbt.PlayImport._
   import play.core.PlayVersion
 
-  private val playHealthVersion = "1.1.0"
-  private val playJsonLoggerVersion = "2.1.1"
-  private val frontendBootstrapVersion = "6.4.0"
-  private val govukTemplateVersion = "4.0.0"
-  private val playUiVersion = "4.11.0"
-  private val playPartialsVersion = "4.2.0"
-  private val playAuthorisedFrontendVersion = "5.0.0"
-  private val playConfigVersion = "2.0.1"
+  private val playHealthVersion = "2.0.0"
+  private val logbackJsonLoggerVersion = "3.0.0"
+  private val frontendBootstrapVersion = "7.4.0"
+  private val govukTemplateVersion = "5.0.0"
+  private val playUiVersion = "5.1.0"
+  private val playPartialsVersion = "5.2.0"
+  private val playAuthorisedFrontendVersion = "6.1.0"
+  private val playConfigVersion = "3.0.0"
 
   val compile = Seq(
     ws,
@@ -46,7 +46,7 @@ private object AppDependencies {
     "uk.gov.hmrc" %% "play-partials" % playPartialsVersion,
     "uk.gov.hmrc" %% "play-authorised-frontend" % playAuthorisedFrontendVersion,
     "uk.gov.hmrc" %% "play-config" % playConfigVersion,
-    "uk.gov.hmrc" %% "play-json-logger" % playJsonLoggerVersion,
+    "uk.gov.hmrc" %% "logback-json-logger" % logbackJsonLoggerVersion,
     "uk.gov.hmrc" %% "govuk-template" % govukTemplateVersion,
     "uk.gov.hmrc" %% "play-health" % playHealthVersion,
     "uk.gov.hmrc" %% "play-ui" % playUiVersion
@@ -58,10 +58,10 @@ private object AppDependencies {
   }
 
   object Test {
-    def apply() = new TestDependencies {
+    def apply(): Seq[ModuleID] = new TestDependencies {
       override lazy val test = Seq(
-        "org.scalatest" %% "scalatest" % "2.2.2" % scope,
-        "org.scalatestplus" % "play_2.11" % "1.2.0" % scope,
+        "org.scalatest" %% "scalatest" % "2.2.6" % scope,
+        "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % scope,
         "org.pegdown" % "pegdown" % "1.4.2" % scope,
         "org.jsoup" % "jsoup" % "1.7.3" % scope,
         "com.typesafe.play" %% "play-test" % PlayVersion.current % scope
